@@ -1,0 +1,315 @@
+---
+import Icon from './Icon.astro';
+
+const legend = [
+  { color: 'var(--c-blue)', label: 'Envío' },
+  { color: 'var(--c-green)', label: 'Recibo' },
+  { color: 'var(--c-amber)', label: 'Gateway' },
+  { color: 'var(--c-violet)', label: 'Servidor' },
+  { color: 'var(--c-magenta)', label: 'Escritura' },
+];
+
+const statuses = [
+  { value: 'all', label: 'Todos los estados' },
+  { value: '200', label: '200 · OK' },
+  { value: '404', label: '404 · No encontrado' },
+  { value: '4xx', label: 'Categoría 4xx' },
+  { value: 'ERR', label: 'ERR · sin respuesta' },
+];
+
+const kinds = [
+  { color: 'var(--c-blue)', label: 'Controles', note: 'botones, enlaces, campos y formularios, usados o no' },
+  { color: 'var(--c-violet)', label: 'Manejadores', note: 'listener resuelto con su firma y su perfil' },
+  { color: 'var(--c-cyan)', label: 'Peticiones', note: 'método, camino, estado y duración observados' },
+  { color: 'var(--c-green)', label: 'Rutas', note: 'endpoint del backend con archivo y línea' },
+  { color: 'var(--c-teal)', label: 'SQL', note: 'sentencia con su driver y su correlación' },
+  { color: 'var(--c-amber)', label: 'Tablas', note: 'rejilla con columnas, usos y celdas reales' },
+];
+---
+
+<section id="grafo" class="bg-bg py-16">
+  <div class="shell">
+    <div class="reveal mb-8 max-w-[76ch]">
+      <p class="label mb-3 text-teal">Réplica navegable · datos de una sesión de ejemplo</p>
+      <h2 class="text-[clamp(1.9rem,4.4vw,3.2rem)]">El mapa de flujo, con sus controles reales.</h2>
+      <p class="mt-5 text-[16px] leading-relaxed text-ink-2 sm:text-[17px]">
+        Esta réplica reproduce la ventana del mapa sobre una cadena de ejemplo. Los filtros de alcance, SQL y estado
+        ocultan y re-apilan lo que no cumple; la búsqueda solo atenúa. El clic izquierdo ilumina la cadena completa del
+        nodo y el clic derecho abre «Ver interacciones» para aislarla.
+      </p>
+    </div>
+
+    <div data-graph class="reveal relative bg-surface" style="--d: 80ms">
+      <div class="flex flex-wrap items-center gap-3 bg-surface-3 px-4 py-3">
+        <span class="h-[9px] w-[9px] shrink-0 bg-teal" aria-hidden="true"></span>
+        <span class="mono text-[11px] text-ink-2">Mapa de flujo · réplica</span>
+        <span class="label ml-auto text-ink-3">Arrastra el lienzo para recorrerlo</span>
+      </div>
+
+      <div class="grid gap-[3px] bg-surface-2 p-[3px]">
+        <div class="flex flex-wrap items-stretch gap-[3px]">
+          <div class="flex items-stretch gap-[3px]">
+            <span class="label flex items-center bg-surface px-3 text-ink-3">Alcance</span>
+            <button type="button" data-scope="all" class="ctl label px-3 py-3">Todo el tráfico</button>
+            <button type="button" data-scope="interacted" class="ctl label px-3 py-3">Solo lo que interactuaste</button>
+          </div>
+          <div class="flex items-stretch gap-[3px]">
+            <span class="label flex items-center bg-surface px-3 text-ink-3">SQL</span>
+            <button type="button" data-sqlfilter="all" class="ctl label px-3 py-3">Todo</button>
+            <button type="button" data-sqlfilter="read" class="ctl label px-3 py-3">Lecturas</button>
+            <button type="button" data-sqlfilter="write" class="ctl label px-3 py-3">Escrituras</button>
+          </div>
+          <div class="flex items-stretch gap-[3px]">
+            <span class="label flex items-center bg-surface px-3 text-ink-3">Orden</span>
+            <button type="button" data-order="chrono" class="ctl label px-3 py-3">Cronológico</button>
+            <button type="button" data-order="structural" class="ctl label px-3 py-3">Estructural</button>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-stretch gap-[3px]">
+          <label class="flex items-center gap-2 bg-surface px-3 py-2">
+            <span class="label text-ink-3">Estado</span>
+            <select data-graph-status-select class="mono cursor-pointer bg-surface-3 px-2 py-2 text-[11.5px] text-ink">
+              {statuses.map((s) => <option value={s.value}>{s.label}</option>)}
+            </select>
+          </label>
+
+          <label class="flex min-w-[220px] flex-1 items-center gap-2 bg-surface px-3 py-2">
+            <Icon name="search" size={14} class="shrink-0 text-ink-3" />
+            <input
+              data-graph-search
+              type="search"
+              placeholder="Buscar nodo, tabla, columna, SQL o estado"
+              class="mono w-full bg-transparent py-2 text-[11.5px] text-ink placeholder:text-ink-3 focus:bg-transparent focus:text-ink"
+              aria-label="Buscar en el grafo"
+            />
+          </label>
+
+          <label class="flex cursor-pointer items-center gap-2 bg-surface px-3 py-2">
+            <input data-graph-compact type="checkbox" class="h-4 w-4 cursor-pointer accent-[var(--c-blue)]" />
+            <span class="label text-ink-2">Vista compacta</span>
+          </label>
+
+          <div class="flex items-stretch gap-[3px]">
+            <button
+              type="button"
+              data-zoom="-0.1"
+              class="ctl flex w-10 items-center justify-center text-[16px] font-bold"
+              aria-label="Alejar">−</button
+            >
+            <span data-graph-zoom-label class="label flex w-14 items-center justify-center bg-surface text-ink-2"
+              >100%</span
+            >
+            <button
+              type="button"
+              data-zoom="0.1"
+              class="ctl flex w-10 items-center justify-center text-[16px] font-bold"
+              aria-label="Acercar">+</button
+            >
+          </div>
+
+          <button type="button" data-graph-reset class="ctl flex items-center gap-2 px-4 py-2">
+            <Icon name="reset" size={15} />
+            <span class="label">Restablecer</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="grid min-w-0 gap-[3px] bg-surface-2">
+        <div class="min-w-0 bg-surface">
+          <div data-graph-heads class="overflow-hidden bg-surface-3 py-2">
+            <div data-graph-heads-inner class="flex"></div>
+          </div>
+          <div
+            data-graph-canvas
+            class="grid-field scroll-x min-w-0 cursor-grab overflow-auto"
+            tabindex="0"
+            role="application"
+            aria-label="Lienzo del mapa de flujo. Usa Tab para recorrer los nodos y Enter para seleccionar."
+          >
+            <div data-graph-sizer>
+              <svg data-graph-svg xmlns="http://www.w3.org/2000/svg"></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid min-w-0 gap-[3px] lg:grid-cols-12">
+          <div data-graph-detail class="scroll-x min-w-0 overflow-auto bg-surface lg:col-span-7"></div>
+
+          <div class="min-w-0 bg-surface p-5 lg:col-span-5">
+            <p class="label mb-3 text-blue">Cómo leer el grafo</p>
+            <div class="grid gap-[2px]">
+              {
+                kinds.map((k, i) => (
+                  <div
+                    class="flex items-start gap-3 px-3 py-[9px]"
+                    style={`background-color: ${i % 2 ? 'var(--c-surface)' : 'var(--c-surface-2)'}`}
+                  >
+                    <span class="mt-[5px] h-[8px] w-[8px] shrink-0" style={`background-color: ${k.color}`} />
+                    <span class="min-w-0">
+                      <span class="label block text-ink">{k.label}</span>
+                      <span class="mono block text-[10.5px] leading-relaxed text-ink-3">{k.note}</span>
+                    </span>
+                  </div>
+                ))
+              }
+            </div>
+            <p class="mono mt-4 text-[11px] leading-relaxed text-ink-2">
+              El contador de cada nodo dice cuántas veces se usó: interacciones, ejecuciones, peticiones recibidas o
+              consultas ejecutadas. La etiqueta <span class="text-green">RUNTIME</span> solo aparece cuando el dato se
+              observó en ejecución; <span class="text-ink">STATIC</span> significa que se detectó en el código.
+            </p>
+            <p class="mono mt-3 text-[11px] leading-relaxed text-ink-3">
+              Arrastra el lienzo para desplazarlo. Tab recorre los nodos, Enter selecciona y Mayús+F10 abre el menú
+              contextual.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-x-5 gap-y-2 bg-surface-3 px-4 py-3">
+        {
+          legend.map((l) => (
+            <span class="flex items-center gap-2">
+              <span class="h-[3px] w-6" style={`background-color: ${l.color}`} />
+              <span class="label text-ink-2">{l.label}</span>
+            </span>
+          ))
+        }
+        <span class="flex items-center gap-2">
+          <svg width="24" height="3" aria-hidden="true">
+            <line x1="0" y1="1.5" x2="24" y2="1.5" stroke="var(--c-ink-3)" stroke-width="3" stroke-dasharray="4 3" />
+          </svg>
+          <span class="label text-ink-2">Heurística</span>
+        </span>
+      </div>
+
+      <p data-graph-status class="mono bg-surface px-4 py-3 text-[11px] text-ink-3" aria-live="polite"></p>
+
+      <div data-graph-menu class="absolute z-30 w-[212px] bg-surface-3" hidden>
+        <button type="button" data-action="isolate" class="menu-item label flex w-full items-center gap-2 px-3 py-3 text-left">
+          <Icon name="filter" size={14} /> Ver interacciones
+        </button>
+        <button
+          type="button"
+          data-action="clear-focus"
+          class="menu-item label flex w-full items-center gap-2 px-3 py-3 text-left"
+        >
+          <Icon name="reset" size={14} /> Quitar enfoque
+        </button>
+        <button
+          type="button"
+          data-action="clear-selection"
+          class="menu-item label flex w-full items-center gap-2 px-3 py-3 text-left"
+        >
+          <Icon name="close" size={14} /> Quitar selección
+        </button>
+      </div>
+    </div>
+
+    <p class="mono mt-4 text-[11.5px] leading-relaxed text-ink-3">
+      La réplica usa una cadena de ejemplo con la misma semántica que la aplicación: evidencia STATIC/RUNTIME,
+      correlación directa o heurística, rejillas SQL con las celdas observadas y filtros que re-apilan en lugar de
+      atenuar. En la app real el inventario cubre todos los controles de la página y el grafo se pobla con la sesión.
+    </p>
+  </div>
+</section>
+
+<style>
+  .ctl {
+    background-color: var(--c-surface);
+    color: var(--c-ink-2);
+    transition:
+      background-color 140ms linear,
+      color 140ms linear;
+  }
+  .ctl:hover {
+    background-color: var(--c-surface-3);
+    color: var(--c-ink);
+  }
+  .ctl[aria-pressed='true'] {
+    background-color: var(--c-blue);
+    color: var(--c-on-accent);
+  }
+  .menu-item {
+    background-color: var(--c-surface-3);
+    color: var(--c-ink);
+    transition: background-color 120ms linear;
+  }
+  .menu-item:hover {
+    background-color: var(--c-blue);
+    color: var(--c-on-accent);
+  }
+  [data-graph-canvas] {
+    touch-action: pan-x pan-y;
+  }
+  [data-graph-canvas]:focus-visible {
+    background-color: var(--c-bg);
+    color: inherit;
+  }
+  [data-graph-canvas].is-panning {
+    cursor: grabbing;
+  }
+  [data-graph-search]:focus-visible {
+    background-color: transparent;
+    color: var(--c-ink);
+  }
+</style>
+
+<script>
+  import { mountGraph } from '../lib/flowgraph';
+
+  document.querySelectorAll<HTMLElement>('[data-graph]').forEach((root) => {
+    mountGraph(root);
+
+    const canvas = root.querySelector<HTMLElement>('[data-graph-canvas]');
+    if (!canvas) return;
+
+    let panning = false;
+    let moved = false;
+    let startX = 0;
+    let startY = 0;
+    let startLeft = 0;
+    let startTop = 0;
+
+    canvas.addEventListener('pointerdown', (event) => {
+      if (event.pointerType !== 'mouse' || event.button !== 0) return;
+      panning = true;
+      moved = false;
+      startX = event.clientX;
+      startY = event.clientY;
+      startLeft = canvas.scrollLeft;
+      startTop = canvas.scrollTop;
+    });
+
+    canvas.addEventListener('pointermove', (event) => {
+      if (!panning) return;
+      const dx = event.clientX - startX;
+      const dy = event.clientY - startY;
+      if (!moved && Math.hypot(dx, dy) < 5) return;
+      moved = true;
+      canvas.classList.add('is-panning');
+      canvas.scrollLeft = startLeft - dx;
+      canvas.scrollTop = startTop - dy;
+    });
+
+    const endPan = () => {
+      panning = false;
+      canvas.classList.remove('is-panning');
+    };
+    canvas.addEventListener('pointerup', endPan);
+    canvas.addEventListener('pointerleave', endPan);
+    canvas.addEventListener('pointercancel', endPan);
+
+    canvas.addEventListener(
+      'click',
+      (event) => {
+        if (moved) {
+          event.stopPropagation();
+          moved = false;
+        }
+      },
+      true,
+    );
+  });
+</script>

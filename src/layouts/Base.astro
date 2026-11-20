@@ -1,0 +1,461 @@
+---
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import Icon from '../components/Icon.astro';
+import {
+  asset,
+  AUTHOR,
+  AUTHOR_URL,
+  FEATURES,
+  LICENSE_URL,
+  REPO,
+  SETUP_SIZE,
+  SETUP_URL,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_ORIGIN,
+  SITE_TITLE,
+  SOCIALS,
+  TWITTER_HANDLE,
+  VERSION,
+} from '../lib/site';
+
+const base = import.meta.env.BASE_URL.replace(/\/+$/, '');
+const origin = Astro.site ?? SITE_ORIGIN;
+const canonical = new URL(`${base}/`, origin).href;
+const ogImage = new URL(`${base}/og-image.png`, origin).href;
+const touchIcon = new URL(`${base}/apple-touch-icon.png`, origin).href;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': `${canonical}#website`,
+      url: canonical,
+      name: SITE_NAME,
+      description: SITE_DESCRIPTION,
+      inLanguage: 'es',
+      publisher: { '@id': `${canonical}#author` },
+    },
+    {
+      '@type': 'Person',
+      '@id': `${canonical}#author`,
+      name: AUTHOR,
+      url: AUTHOR_URL,
+      sameAs: SOCIALS.map((s) => s.href),
+    },
+    {
+      '@type': 'SoftwareApplication',
+      '@id': `${canonical}#app`,
+      name: SITE_NAME,
+      alternateName: 'Backend DevTools Desktop',
+      description: SITE_DESCRIPTION,
+      url: canonical,
+      applicationCategory: 'DeveloperApplication',
+      applicationSubCategory: 'Depurador e inspector de aplicaciones web',
+      operatingSystem: 'Windows 10, Windows 11',
+      softwareVersion: VERSION,
+      releaseNotes: `${REPO}/releases/tag/v${VERSION}`,
+      downloadUrl: SETUP_URL,
+      installUrl: SETUP_URL,
+      fileSize: SETUP_SIZE,
+      license: LICENSE_URL,
+      isAccessibleForFree: true,
+      inLanguage: 'es',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD', availability: 'https://schema.org/InStock' },
+      featureList: FEATURES.map((f) => f.title),
+      screenshot: new URL(asset('foto-main.png'), origin).href,
+      image: ogImage,
+      author: { '@id': `${canonical}#author` },
+      publisher: { '@id': `${canonical}#author` },
+    },
+    {
+      '@type': 'SoftwareSourceCode',
+      '@id': `${canonical}#source`,
+      name: `${SITE_NAME} — código fuente`,
+      codeRepository: REPO,
+      programmingLanguage: ['TypeScript', 'JavaScript'],
+      runtimePlatform: 'Electron',
+      license: LICENSE_URL,
+      targetProduct: { '@id': `${canonical}#app` },
+      author: { '@id': `${canonical}#author` },
+    },
+  ],
+};
+---
+
+<!doctype html>
+<html lang="es" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{SITE_TITLE}</title>
+    <meta name="description" content={SITE_DESCRIPTION} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
+    <link rel="apple-touch-icon" href={touchIcon} />
+    <meta name="theme-color" content="#070c17" />
+    <meta name="author" content={AUTHOR} />
+    <meta name="application-name" content={SITE_NAME} />
+    <meta name="apple-mobile-web-app-title" content={SITE_NAME} />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:title" content={SITE_TITLE} />
+    <meta property="og:description" content={SITE_DESCRIPTION} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="es_ES" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Fullstack DevTools: del clic a la base de datos. Ventana de la aplicación con el tooltip de procedencia sobre un botón y el panel de inspección."
+    />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content={TWITTER_HANDLE} />
+    <meta name="twitter:creator" content={TWITTER_HANDLE} />
+    <meta name="twitter:title" content={SITE_TITLE} />
+    <meta name="twitter:description" content={SITE_DESCRIPTION} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta
+      name="twitter:image:alt"
+      content="Fullstack DevTools: del clic a la base de datos. Ventana de la aplicación con el tooltip de procedencia sobre un botón."
+    />
+
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
+    <script is:inline>
+      (() => {
+        try {
+          const saved = localStorage.getItem('fd-theme');
+          const theme = saved === 'light' || saved === 'dark' ? saved : 'dark';
+          document.documentElement.dataset.theme = theme;
+        } catch {
+          document.documentElement.dataset.theme = 'dark';
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <a
+      href="#cadena"
+      class="label sr-only focus:not-sr-only focus:fixed focus:top-0 focus:left-0 focus:z-100 focus:bg-blue focus:px-5 focus:py-3 focus:text-on-accent"
+      >Saltar al contenido</a
+    >
+
+    <div class="fixed top-0 left-0 z-60 h-[3px] w-full bg-transparent" aria-hidden="true">
+      <div id="scroll-progress" class="h-full w-0 bg-blue"></div>
+    </div>
+
+    <Nav />
+
+    <main id="contenido">
+      <slot />
+    </main>
+
+    <Footer />
+
+    <div
+      id="zoom"
+      class="fixed inset-0 z-90 hidden flex-col"
+      style="background-color: var(--c-scrim)"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Vista ampliada"
+    >
+      <div class="flex shrink-0 items-center justify-between gap-4 bg-surface px-4 py-3 sm:px-6">
+        <p id="zoom-caption" class="mono truncate text-[12px] text-ink-2 sm:text-[13px]"></p>
+        <div class="flex shrink-0 items-center gap-2">
+          <span id="zoom-count" class="label hidden text-ink-3"></span>
+          <button
+            id="zoom-fit"
+            class="flex h-9 items-center gap-2 bg-surface-3 px-3 text-ink hover:bg-blue hover:text-on-accent"
+            type="button"
+          >
+            <Icon name="expand" size={16} />
+            <span class="label hidden sm:inline" data-fit-label>Ajustar</span>
+          </button>
+          <button
+            id="zoom-close"
+            class="flex h-9 items-center gap-2 bg-blue px-3 text-on-accent hover:bg-ink hover:text-bg"
+            type="button"
+          >
+            <Icon name="close" size={16} />
+            <span class="label">Cerrar</span>
+          </button>
+        </div>
+      </div>
+      <div id="zoom-stage" class="scroll-x min-h-0 flex-1 overflow-auto p-4 sm:p-8">
+        <img id="zoom-img" class="mx-auto" alt="" />
+      </div>
+      <div id="zoom-nav" class="hidden shrink-0 items-stretch bg-surface">
+        <button
+          id="zoom-prev"
+          class="flex flex-1 items-center justify-center gap-2 py-4 text-ink hover:bg-blue hover:text-on-accent"
+          type="button"
+        >
+          <Icon name="arrow-left" size={18} /><span class="label">Anterior</span>
+        </button>
+        <button
+          id="zoom-next"
+          class="flex flex-1 items-center justify-center gap-2 bg-surface-2 py-4 text-ink hover:bg-blue hover:text-on-accent"
+          type="button"
+        >
+          <span class="label">Siguiente</span><Icon name="arrow-right" size={18} />
+        </button>
+      </div>
+    </div>
+
+    <script>
+      import { VERSION } from '../lib/site';
+
+      const root = document.documentElement;
+
+      /* ---------- theme ---------- */
+      const meta = document.querySelector('meta[name="theme-color"]');
+      const paintMeta = () => {
+        if (meta) meta.setAttribute('content', root.dataset.theme === 'light' ? '#eff4fc' : '#070c17');
+      };
+      paintMeta();
+
+      document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const next = root.dataset.theme === 'light' ? 'dark' : 'light';
+          root.dataset.theme = next;
+          try {
+            localStorage.setItem('fd-theme', next);
+          } catch {
+            /* almacenamiento no disponible */
+          }
+          paintMeta();
+          document.dispatchEvent(new CustomEvent('fd:theme', { detail: next }));
+        });
+      });
+
+      /* ---------- reveal on scroll ---------- */
+      const revealables = document.querySelectorAll<HTMLElement>('.reveal');
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-in');
+                io.unobserve(entry.target);
+              }
+            }
+          },
+          { rootMargin: '0px 0px -8% 0px', threshold: 0.06 },
+        );
+        revealables.forEach((el) => io.observe(el));
+      } else {
+        revealables.forEach((el) => el.classList.add('is-in'));
+      }
+
+      /* ---------- scroll progress + scrollspy ---------- */
+      const bar = document.getElementById('scroll-progress');
+      const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-spy]'));
+      const sections = links
+        .map((l) => document.getElementById(l.dataset.spy ?? ''))
+        .filter((el): el is HTMLElement => Boolean(el));
+      let ticking = false;
+
+      const onScroll = () => {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        if (bar) bar.style.width = `${max > 0 ? Math.min(100, (window.scrollY / max) * 100) : 0}%`;
+
+        const line = window.scrollY + (parseInt(getComputedStyle(root).getPropertyValue('--nav-h')) || 68) + 80;
+        let active = sections[0]?.id ?? '';
+        for (const section of sections) {
+          if (section.offsetTop <= line) active = section.id;
+        }
+        links.forEach((l) => {
+          const on = l.dataset.spy === active;
+          l.dataset.active = on ? 'true' : 'false';
+          if (on) l.setAttribute('aria-current', 'true');
+          else l.removeAttribute('aria-current');
+        });
+        ticking = false;
+      };
+
+      window.addEventListener(
+        'scroll',
+        () => {
+          if (!ticking) {
+            ticking = true;
+            requestAnimationFrame(onScroll);
+          }
+        },
+        { passive: true },
+      );
+      window.addEventListener('resize', onScroll, { passive: true });
+      onScroll();
+
+      /* ---------- mobile menu ---------- */
+      const menuBtn = document.getElementById('menu-btn');
+      const menu = document.getElementById('mobile-menu');
+      const setMenu = (open: boolean) => {
+        if (!menu || !menuBtn) return;
+        menu.hidden = !open;
+        menuBtn.setAttribute('aria-expanded', String(open));
+        menuBtn.dataset.open = String(open);
+      };
+      menuBtn?.addEventListener('click', () => setMenu(menu?.hidden === true));
+      menu?.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setMenu(false)));
+
+      /* ---------- lightbox ---------- */
+      type ZoomItem = { src: string; caption: string };
+      const zoom = document.getElementById('zoom');
+      const zoomImg = document.getElementById('zoom-img') as HTMLImageElement | null;
+      const zoomCaption = document.getElementById('zoom-caption');
+      const zoomCount = document.getElementById('zoom-count');
+      const zoomNav = document.getElementById('zoom-nav');
+      const zoomStage = document.getElementById('zoom-stage');
+      const zoomFit = document.getElementById('zoom-fit');
+      let items: ZoomItem[] = [];
+      let index = 0;
+      let fitted = true;
+      let lastFocus: HTMLElement | null = null;
+
+      const applyFit = () => {
+        if (!zoomImg || !zoomStage) return;
+        const natural = zoomImg.naturalWidth || 1;
+        if (fitted) {
+          const availW = Math.max(200, zoomStage.clientWidth - 8);
+          const availH = Math.max(200, zoomStage.clientHeight - 8);
+          const ratio = (zoomImg.naturalHeight || 1) / natural;
+          const scale = Math.min(availW / natural, availH / (natural * ratio), 3);
+          zoomImg.style.maxHeight = 'none';
+          zoomImg.style.maxWidth = 'none';
+          zoomImg.style.width = `${Math.round(natural * scale)}px`;
+          zoomImg.style.height = 'auto';
+        } else {
+          zoomImg.style.maxHeight = 'none';
+          zoomImg.style.maxWidth = 'none';
+          zoomImg.style.width = `${natural}px`;
+          zoomImg.style.height = 'auto';
+        }
+        if (zoomFit) {
+          zoomFit.dataset.fitted = String(fitted);
+          const label = zoomFit.querySelector('[data-fit-label]');
+          if (label) label.textContent = fitted ? 'Ajustar' : 'Tamaño 1:1';
+          zoomFit.setAttribute('aria-label', fitted ? 'Ver a tamaño real 1:1' : 'Ajustar a la ventana');
+        }
+      };
+
+      const paintZoom = () => {
+        const item = items[index];
+        if (!item || !zoomImg) return;
+        zoomImg.src = item.src;
+        zoomImg.alt = item.caption;
+        if (zoomCaption) zoomCaption.textContent = item.caption;
+        if (zoomCount) {
+          zoomCount.textContent = `${String(index + 1).padStart(2, '0')} / ${String(items.length).padStart(2, '0')}`;
+          zoomCount.classList.toggle('hidden', items.length < 2);
+        }
+        zoomNav?.classList.toggle('hidden', items.length < 2);
+        zoomNav?.classList.toggle('flex', items.length > 1);
+        fitted = true;
+        if (zoomImg.complete) applyFit();
+        else zoomImg.addEventListener('load', applyFit, { once: true });
+      };
+
+      const closeZoom = () => {
+        if (!zoom) return;
+        zoom.classList.add('hidden');
+        zoom.classList.remove('flex');
+        document.body.style.removeProperty('overflow');
+        lastFocus?.focus();
+      };
+
+      const step = (delta: number) => {
+        if (items.length < 2) return;
+        index = (index + delta + items.length) % items.length;
+        paintZoom();
+      };
+
+      window.addEventListener('fd:zoom', (event) => {
+        const detail = (event as CustomEvent<{ items: ZoomItem[]; index: number }>).detail;
+        if (!detail?.items?.length || !zoom) return;
+        items = detail.items;
+        index = Math.min(Math.max(0, detail.index), items.length - 1);
+        lastFocus = document.activeElement as HTMLElement;
+        zoom.classList.remove('hidden');
+        zoom.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+        paintZoom();
+        document.getElementById('zoom-close')?.focus();
+      });
+
+      document.getElementById('zoom-close')?.addEventListener('click', closeZoom);
+      document.getElementById('zoom-prev')?.addEventListener('click', () => step(-1));
+      document.getElementById('zoom-next')?.addEventListener('click', () => step(1));
+      zoomFit?.addEventListener('click', () => {
+        fitted = !fitted;
+        applyFit();
+      });
+      zoomStage?.addEventListener('click', (e) => {
+        if (e.target === zoomStage) closeZoom();
+      });
+      window.addEventListener('resize', () => {
+        if (zoom && !zoom.classList.contains('hidden') && fitted) applyFit();
+      });
+      document.addEventListener('keydown', (e) => {
+        if (!zoom || zoom.classList.contains('hidden')) return;
+        if (e.key === 'Escape') closeZoom();
+        if (e.key === 'ArrowLeft') step(-1);
+        if (e.key === 'ArrowRight') step(1);
+      });
+
+      document.querySelectorAll<HTMLElement>('[data-lightbox]').forEach((el) => {
+        el.addEventListener('click', () => {
+          window.dispatchEvent(
+            new CustomEvent('fd:zoom', {
+              detail: {
+                items: [{ src: el.dataset.lightbox ?? '', caption: el.dataset.lightboxCaption ?? '' }],
+                index: 0,
+              },
+            }),
+          );
+        });
+      });
+
+      /* ---------- copy buttons ---------- */
+      document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
+        const original = btn.innerHTML;
+        btn.addEventListener('click', async () => {
+          const text = btn.dataset.copy ?? '';
+          try {
+            await navigator.clipboard.writeText(text);
+          } catch {
+            const area = document.createElement('textarea');
+            area.value = text;
+            area.style.position = 'fixed';
+            area.style.opacity = '0';
+            document.body.appendChild(area);
+            area.select();
+            document.execCommand('copy');
+            area.remove();
+          }
+          btn.dataset.done = 'true';
+          btn.innerHTML = '<span class="label">Copiado</span>';
+          window.setTimeout(() => {
+            btn.dataset.done = 'false';
+            btn.innerHTML = original;
+          }, 1600);
+        });
+      });
+
+      /* ---------- live version stamps ---------- */
+      document.querySelectorAll<HTMLElement>('[data-version]').forEach((el) => {
+        el.textContent = VERSION;
+      });
+    </script>
+  </body>
+</html>

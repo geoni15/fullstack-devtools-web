@@ -1,0 +1,223 @@
+---
+import Icon from './Icon.astro';
+import {
+  VERSION,
+  REPO,
+  RELEASES,
+  SETUP_URL,
+  PORTABLE_URL,
+  SETUP_SIZE,
+  PORTABLE_SIZE,
+  RELEASE_TITLE,
+  NODE_MIN,
+  LICENSE,
+  LICENSE_URL,
+} from '../lib/site';
+
+const BUILDS = [
+  {
+    id: 'setup',
+    icon: 'download',
+    color: 'var(--c-blue)',
+    name: 'Instalador',
+    file: `Backend-DevTools-Desktop-${VERSION}-setup.exe`,
+    size: SETUP_SIZE,
+    href: SETUP_URL,
+    lead: 'Instalación asistida con acceso directo y desinstalador de Windows.',
+    points: [
+      'Elige el directorio de instalación durante el asistente.',
+      'Crea accesos directos en el menú Inicio y el escritorio.',
+      'Queda registrada en Aplicaciones y características para desinstalar.',
+    ],
+    cta: 'Descargar instalador',
+  },
+  {
+    id: 'portable',
+    icon: 'window',
+    color: 'var(--c-teal)',
+    name: 'Portable',
+    file: `Backend-DevTools-Desktop-${VERSION}-portable.exe`,
+    size: PORTABLE_SIZE,
+    href: PORTABLE_URL,
+    lead: 'Un solo ejecutable: se abre y listo, sin escribir en el registro.',
+    points: [
+      'No requiere instalación ni permisos de administrador.',
+      'Se puede llevar en una unidad externa o en una carpeta del proyecto.',
+      'Al cerrar no deja entradas de desinstalación en el sistema.',
+    ],
+    cta: 'Descargar portable',
+  },
+];
+
+const REQUIREMENTS = [
+  { k: 'Sistema', v: 'Windows 10 / 11 · x64', note: 'Verificado en Windows. macOS y Linux sin verificar.' },
+  { k: 'Backend', v: 'Node.js con --inspect', note: 'Opcional: sin inspector sigue el análisis estático.' },
+  { k: 'Desde código', v: `Node.js >= ${NODE_MIN}`, note: 'npm workspaces instala todo el monorepo.' },
+  { k: 'Licencia', v: LICENSE, note: 'Código abierto, uso y modificación permitidos.' },
+];
+
+const COMMANDS = [
+  { cmd: `git clone ${REPO}.git`, note: 'Clona el monorepo completo' },
+  { cmd: 'cd fullstack-devtools', note: 'Entra en la raíz del proyecto' },
+  { cmd: 'npm install', note: 'Instala los workspaces' },
+  { cmd: 'npm run dev', note: 'Vite + Electron en modo desarrollo' },
+];
+
+const ALL_COMMANDS = COMMANDS.map((c) => c.cmd).join('\n');
+---
+
+<section id="descarga" class="relative bg-bg py-16">
+  <div class="shell">
+    <div class="reveal mb-8 grid gap-6 lg:grid-cols-12 lg:items-end">
+      <div class="lg:col-span-8">
+        <p class="label mb-3 text-blue">Descarga</p>
+        <h2 class="text-[clamp(1.9rem,4.4vw,3.2rem)]">Versión {VERSION}, lista para Windows.</h2>
+        <p class="mt-5 max-w-[68ch] text-[16px] leading-relaxed text-ink-2 sm:text-[17px]">
+          Publicada como «{RELEASE_TITLE}». Los dos ejecutables salen del mismo código abierto del repositorio: quien
+          prefiera compilarlo puede hacerlo con cuatro comandos.
+        </p>
+      </div>
+      <div class="lg:col-span-4">
+        <a class="btn w-full justify-center" href={RELEASES} target="_blank" rel="noopener noreferrer">
+          <Icon name="external" size={15} />
+          Todas las releases
+        </a>
+      </div>
+    </div>
+
+    <div class="grid gap-[3px] lg:grid-cols-2">
+      {
+        BUILDS.map((b, i) => (
+          <article class="reveal build bg-surface" style={`--b: ${b.color}; --d: ${i * 90}ms`}>
+            <div class="flex items-center justify-between gap-4 px-6 py-5" style={`background-color: ${b.color}`}>
+              <div class="flex items-center gap-3 text-on-accent">
+                <Icon name={b.icon} size={22} />
+                <h3 class="text-[20px]">{b.name}</h3>
+              </div>
+              <span class="mono bg-void px-3 py-1.5 text-[12px] text-ink">{b.size}</span>
+            </div>
+            <div class="p-6">
+              <p class="text-[15.5px] leading-relaxed text-ink-2">{b.lead}</p>
+              <p class="mono mt-4 overflow-x-auto bg-surface-2 px-3 py-2.5 text-[12px] text-ink">{b.file}</p>
+              <ul class="mt-5 grid gap-3">
+                {b.points.map((p) => (
+                  <li class="flex gap-3 text-[14px] leading-relaxed text-ink-2">
+                    <span class="mt-[7px] h-2 w-2 shrink-0" style={`background-color: ${b.color}`} />
+                    {p}
+                  </li>
+                ))}
+              </ul>
+              <a class="btn btn-primary mt-6 w-full justify-center py-4 text-[15px]" href={b.href}>
+                <Icon name="download" size={17} />
+                {b.cta}
+              </a>
+              <p class="mono mt-3 text-center text-[11.5px] text-ink-3">github.com · release v{VERSION}</p>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+
+    <div class="reveal mt-[3px] flex flex-wrap items-start gap-4 bg-surface-2 px-6 py-5">
+      <span class="mt-[2px] text-amber"><Icon name="shield" size={18} /></span>
+      <p class="max-w-[92ch] text-[14px] leading-relaxed text-ink-2">
+        <span class="text-ink">Aviso de SmartScreen.</span> Los binarios no están firmados con un certificado de pago, así
+        que Windows puede mostrar «Windows protegió su PC». La opción «Más información» habilita «Ejecutar de todas
+        formas». El código que produce esos ejecutables está publicado y se puede compilar localmente.
+      </p>
+    </div>
+
+    <div class="mt-14 grid gap-[3px] lg:grid-cols-12">
+      <div class="reveal bg-surface lg:col-span-7">
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-surface-3 px-5 py-4">
+          <div class="flex items-center gap-3">
+            <span class="text-green"><Icon name="terminal" size={18} /></span>
+            <h3 class="text-[16px]">Compilar desde el código fuente</h3>
+          </div>
+          <button type="button" class="btn" data-copy={ALL_COMMANDS}>
+            <Icon name="copy" size={15} />
+            Copiar los 4 comandos
+          </button>
+        </div>
+        <div class="grid gap-[3px] bg-surface-2 p-[3px]">
+          {
+            COMMANDS.map((c, i) => (
+              <div class="grid grid-cols-[36px_1fr] items-stretch gap-[3px] bg-surface-2">
+                <span class="mono flex items-center justify-center bg-surface-3 text-[12px] text-ink-3">{i + 1}</span>
+                <div class="cmd flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-surface px-4 py-3.5">
+                  <code class="mono text-[13px] break-all text-ink">
+                    <span class="text-green">$</span> {c.cmd}
+                  </code>
+                  <span class="flex items-center gap-3">
+                    <span class="text-[12px] text-ink-3">{c.note}</span>
+                    <button type="button" class="mini" data-copy={c.cmd} aria-label={`Copiar: ${c.cmd}`}>
+                      <Icon name="copy" size={14} />
+                    </button>
+                  </span>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+        <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+          <p class="mono text-[11.5px] text-ink-3">npm run package:win · genera nsis y portable</p>
+          <a class="btn" href={`${REPO}#readme`} target="_blank" rel="noopener noreferrer">
+            <Icon name="external" size={15} />
+            Instrucciones completas
+          </a>
+        </div>
+      </div>
+
+      <div class="reveal grid gap-[3px] lg:col-span-5" style="--d: 90ms">
+        <div class="bg-surface px-5 py-4">
+          <p class="label text-ink-3">Requisitos</p>
+        </div>
+        {
+          REQUIREMENTS.map((r) => (
+            <div class="grid gap-[3px] bg-surface-2 sm:grid-cols-[128px_1fr]">
+              <span class="label flex items-center bg-surface-3 px-4 py-4 text-ink-3">{r.k}</span>
+              <div class="bg-surface px-4 py-4">
+                <p class="mono text-[13.5px] text-ink">{r.v}</p>
+                <p class="mt-1.5 text-[13px] leading-relaxed text-ink-2">{r.note}</p>
+              </div>
+            </div>
+          ))
+        }
+        <a class="btn justify-center py-4" href={LICENSE_URL} target="_blank" rel="noopener noreferrer">
+          <Icon name="badge" size={15} />
+          Licencia {LICENSE} · Copyright 2026 geoni15
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .build {
+    transition: background-color 180ms linear;
+  }
+  .build:hover {
+    background-color: var(--c-surface-2);
+  }
+  .mini {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background-color: var(--c-surface-2);
+    color: var(--c-ink-3);
+    transition:
+      background-color 140ms linear,
+      color 140ms linear;
+  }
+  .mini:hover {
+    background-color: var(--c-blue);
+    color: var(--c-on-accent);
+  }
+  .mini[data-done='true'],
+  [data-copy][data-done='true'] {
+    background-color: var(--c-green);
+    color: var(--c-on-accent);
+  }
+</style>

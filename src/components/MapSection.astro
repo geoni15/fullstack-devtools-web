@@ -1,0 +1,122 @@
+---
+import Icon from './Icon.astro';
+import Shot from './Shot.astro';
+import { asset } from '../lib/site';
+
+const legend = [
+  { color: 'var(--c-blue)', label: 'Envío', note: 'sale por la derecha' },
+  { color: 'var(--c-green)', label: 'Recibo', note: 'sale por la izquierda' },
+  { color: 'var(--c-amber)', label: 'Gateway HTTP', note: 'petición ↔ ruta' },
+  { color: 'var(--c-violet)', label: 'Servidor', note: 'ruta → función → SQL' },
+  { color: 'var(--c-magenta)', label: 'Escritura', note: 'escribe la celda' },
+];
+
+const powers = [
+  {
+    icon: 'grid',
+    title: 'Tablas dentro del lienzo',
+    body: 'Cada nodo de tabla es una rejilla SQL completa: columnas con sus usos apilados, celdas reales de las ejecuciones y numeración de filas. Las columnas que solo trae la respuesta se etiquetan RESULTADO.',
+  },
+  {
+    icon: 'route',
+    title: 'Fila de intercambio',
+    body: 'En el hueco entre frontend y backend, cada intercambio se dibuja en tres columnas: petición del frontend, JSON en el centro y petición del backend. Las tres se despliegan por secciones y el texto es seleccionable.',
+  },
+  {
+    icon: 'filter',
+    title: 'Filtros que ocultan y re-apilan',
+    body: 'Alcance, evento, estado HTTP y lecturas/escrituras no atenúan: quitan del grafo lo que no cumple y vuelven a apilar lo que queda, con contadores vivos. La búsqueda, en cambio, solo atenúa.',
+  },
+  {
+    icon: 'layers',
+    title: 'Tres órdenes del mismo dato',
+    body: 'Cronológico apila por hora de primera aparición con HH:MM:SS. Estructural ordena por archivo, línea y posición en el DOM. Jerárquico dibuja un árbol de archivos con los hijos a ambos lados.',
+  },
+  {
+    icon: 'cpu',
+    title: 'Solo se dibuja lo visible',
+    body: 'El SVG monta los nodos y aristas del visor más un margen de 280 px y los recicla al desplazar, acercar o redimensionar. Las listas cargan 20 elementos por bloque sin descartar datos.',
+  },
+  {
+    icon: 'eye',
+    title: 'La página sigue al lado',
+    body: 'El mapa ocupa su propia ventana y la aplicación inspeccionada queda visible en la otra. Al pulsar un nodo, su elemento se centra y se resalta en la página con el mismo recuadro del hover.',
+  },
+];
+---
+
+<section id="mapa" class="relative bg-surface py-16">
+  <div class="shell">
+    <div class="reveal mb-8 grid gap-8 lg:grid-cols-12">
+      <div class="lg:col-span-7">
+        <p class="label mb-3 text-violet">Mapa de flujo · una sola ventana</p>
+        <h2 class="text-[clamp(1.9rem,4.4vw,3.2rem)]">Un grafo. Del HTML a la base de datos.</h2>
+        <p class="mt-5 text-[16px] leading-relaxed text-ink-2 sm:text-[17px]">
+          No hay una vista para el frontend y otra para el backend. «Mapa» abre un único lienzo que enlaza el DOM, el
+          CSS/JS, los manejadores, las peticiones, las rutas, las funciones, las consultas, las tablas y las bases de
+          datos. Incluye todos los controles de la página —los toques o no— y todas las interacciones de la sesión.
+        </p>
+      </div>
+      <div class="lg:col-span-5">
+        <div class="bg-surface-2 p-5">
+          <p class="label mb-3 text-ink-3">Cadena detectada en la sesión</p>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="label bg-blue px-3 py-2 text-on-accent">HTML</span>
+            <Icon name="arrow-right" size={14} class="text-ink-3" />
+            <span class="label bg-violet px-3 py-2 text-on-accent">React</span>
+            <Icon name="arrow-right" size={14} class="text-ink-3" />
+            <span class="label bg-green px-3 py-2 text-on-accent">Express</span>
+            <Icon name="arrow-right" size={14} class="text-ink-3" />
+            <span class="label bg-teal px-3 py-2 text-on-accent">MySQL</span>
+          </div>
+          <p class="mono mt-4 text-[11.5px] leading-relaxed text-ink-3">
+            285 controles · 47 estructuras · 10 recursos CSS/JS · 4 formularios · 7 clics · 56 peticiones · 172 rutas ·
+            376 SQL · 46 tablas · 1 BD
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal" style="--d: 80ms">
+      <Shot
+        src={asset('mapa.png')}
+        alt="Ventana del mapa de flujo con la tira de tecnologías HTML, React, Express y MySQL, el rail de interacciones a la izquierda y la fila de intercambio con la petición del frontend, el cuerpo JSON devuelto y la petición del backend con sus consultas SQL."
+        title="Mapa de flujo · Cronológico · Solo lo que interactuaste · 569 nodos"
+        caption="La fila de intercambio de POST /api/auth/login: petición del frontend con cabeceras y cuerpo enviado, el JSON devuelto con el token y el usuario, y la petición del backend con su ruta, su manejador y las tres consultas SELECT que ejecutó."
+        width={1366}
+        height={768}
+      />
+    </div>
+
+    <div
+      class="reveal mt-[3px] grid gap-[3px] bg-surface-2 p-[3px] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6"
+    >
+      <span class="label flex items-center bg-surface px-4 py-3 text-ink-3">Leyenda de aristas</span>
+      {
+        legend.map((l) => (
+          <span class="flex min-w-0 items-center gap-2 bg-surface px-3 py-3">
+            <span class="h-[3px] w-6 shrink-0" style={`background-color: ${l.color}`} />
+            <span class="min-w-0">
+              <span class="label block text-ink">{l.label}</span>
+              <span class="mono block truncate text-[10.5px] text-ink-3">{l.note}</span>
+            </span>
+          </span>
+        ))
+      }
+    </div>
+
+    <div class="mt-[3px] grid gap-[3px] md:grid-cols-2 xl:grid-cols-3">
+      {
+        powers.map((p, i) => (
+          <article class="reveal bg-surface-2 p-6" style={`--d: ${i * 60}ms`}>
+            <span class="mb-4 flex h-10 w-10 items-center justify-center bg-surface text-blue">
+              <Icon name={p.icon} size={20} />
+            </span>
+            <h3 class="text-[18px] leading-snug">{p.title}</h3>
+            <p class="mt-3 text-[14.5px] leading-relaxed text-ink-2">{p.body}</p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>

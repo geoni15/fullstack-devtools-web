@@ -1,0 +1,160 @@
+---
+import Icon from './Icon.astro';
+import { CHAIN } from '../lib/site';
+---
+
+<section id="cadena" class="relative bg-surface pt-14 pb-14">
+  <div class="shell">
+    <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <p class="label mb-2 text-blue">La cadena · seis saltos</p>
+        <h2 class="text-[clamp(1.6rem,3.4vw,2.5rem)]">Un dato cruza seis capas. Aquí se ven las seis.</h2>
+      </div>
+      <div class="flex items-center gap-2">
+        <p class="label hidden text-ink-3 md:block">Pulsa un salto para abrir su modo</p>
+        <button
+          id="chain-toggle"
+          type="button"
+          class="flex h-9 items-center gap-2 bg-surface-3 px-3 text-ink hover:bg-blue hover:text-on-accent"
+          aria-label="Pausar el recorrido automático de la cadena"
+        >
+          <span data-chain-icon><Icon name="pause" size={15} /></span>
+          <span class="label" data-chain-label>Pausar</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="chain" class="grid grid-cols-2 gap-[3px] sm:grid-cols-3 lg:grid-cols-6">
+      {
+        CHAIN.map((hop, i) => (
+          <button
+            type="button"
+            data-hop={i}
+            data-mode={hop.mode}
+            class="hop relative flex flex-col items-start gap-1 bg-surface-2 p-4 text-left"
+            style={`--hop: ${hop.color}`}
+          >
+            <span class="hop-bar absolute top-0 left-0 h-[3px] w-full" />
+            <span class="label flex w-full items-center justify-between text-ink-3">
+              <span>{String(i + 1).padStart(2, '0')}</span>
+              <span class="hop-dot h-2 w-2" />
+            </span>
+            <span class="hop-name text-[17px] font-bold tracking-[-0.02em]">{hop.label}</span>
+            <span class="mono text-[11px] leading-tight text-ink-2">{hop.sub}</span>
+            <span class="hop-cta label mt-2 flex items-center gap-1 text-ink-3">
+              Ver modo <Icon name="arrow-right" size={13} />
+            </span>
+          </button>
+        ))
+      }
+    </div>
+
+    <p class="mono mt-4 text-[12px] leading-relaxed text-ink-3">
+      Cada salto conserva su evidencia: <span class="text-green">RUNTIME</span> cuando se observó en ejecución,
+      <span class="text-ink-2">STATIC</span> cuando solo se detectó en el código. Lo detectado nunca se presenta como ejecutado.
+    </p>
+  </div>
+</section>
+
+<style>
+  .hop {
+    transition: background-color 200ms linear;
+  }
+  .hop:hover {
+    background-color: var(--c-surface-3);
+  }
+  .hop-bar {
+    background-color: var(--hop);
+    opacity: 0.22;
+    transition: opacity 200ms linear;
+  }
+  .hop-dot {
+    background-color: var(--hop);
+    opacity: 0;
+    transition: opacity 200ms linear;
+  }
+  .hop-name,
+  .hop-cta {
+    transition: color 200ms linear;
+  }
+  .hop:hover .hop-cta {
+    color: var(--c-ink);
+  }
+  .hop[data-live='true'] {
+    background-color: var(--c-surface-3);
+  }
+  .hop[data-live='true'] .hop-bar,
+  .hop[data-live='true'] .hop-dot {
+    opacity: 1;
+  }
+  .hop[data-live='true'] .hop-name {
+    color: var(--hop);
+  }
+</style>
+
+<script>
+  const chain = document.getElementById('chain');
+  const toggle = document.getElementById('chain-toggle');
+  const hops = Array.from(chain?.querySelectorAll<HTMLButtonElement>('[data-hop]') ?? []);
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const PAUSE_ICON =
+    '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M8 4v16 M16 4v16"/></svg>';
+  const PLAY_ICON =
+    '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M7 4l13 8-13 8V4z"/></svg>';
+
+  let cursor = 0;
+  let playing = !reduced;
+  let hovering = false;
+  let timer = 0;
+
+  const paint = () => {
+    hops.forEach((hop, i) => {
+      hop.dataset.live = String(i === cursor);
+    });
+  };
+
+  const paintToggle = () => {
+    if (!toggle) return;
+    const label = toggle.querySelector('[data-chain-label]');
+    const icon = toggle.querySelector('[data-chain-icon]');
+    if (label) label.textContent = playing ? 'Pausar' : 'Recorrer';
+    if (icon) icon.innerHTML = playing ? PAUSE_ICON : PLAY_ICON;
+    toggle.setAttribute('aria-label', playing ? 'Pausar el recorrido automático' : 'Reanudar el recorrido automático');
+  };
+
+  const tick = () => {
+    if (playing && !hovering && !document.hidden) {
+      cursor = (cursor + 1) % hops.length;
+      paint();
+    }
+    timer = window.setTimeout(tick, 1700);
+  };
+
+  if (hops.length) {
+    paint();
+    paintToggle();
+    timer = window.setTimeout(tick, 1700);
+
+    chain?.addEventListener('pointerenter', () => (hovering = true));
+    chain?.addEventListener('pointerleave', () => (hovering = false));
+    chain?.addEventListener('focusin', () => (hovering = true));
+    chain?.addEventListener('focusout', () => (hovering = false));
+
+    toggle?.addEventListener('click', () => {
+      playing = !playing;
+      paintToggle();
+    });
+
+    hops.forEach((hop, i) => {
+      hop.addEventListener('click', () => {
+        cursor = i;
+        paint();
+        window.dispatchEvent(new CustomEvent('fd:mode', { detail: hop.dataset.mode }));
+        document.getElementById('modos')?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+      });
+    });
+
+    window.addEventListener('pagehide', () => window.clearTimeout(timer));
+  }
+</script>

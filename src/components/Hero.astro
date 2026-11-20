@@ -1,0 +1,205 @@
+---
+import Icon from './Icon.astro';
+import Shot from './Shot.astro';
+import { asset, REPO, VERSION, SETUP_URL } from '../lib/site';
+
+const requests = [
+  { method: 'GET', path: '/api/statistics', at: '23:42:35', kind: 'FONDO', ms: 442, at2: 'index.js:653' },
+  { method: 'GET', path: '/api/reports/financial', at: '23:42:35', kind: 'FONDO', ms: 146, at2: 'index.js:5601' },
+  { method: 'GET', path: '/api/fiscal-periods', at: '23:42:35', kind: 'FONDO', ms: 140, at2: 'index.js:3232' },
+  { method: 'GET', path: '/api/accounts', at: '23:42:35', kind: 'CLIC', ms: 130, at2: 'index.js:3376' },
+];
+
+const stats = [
+  { n: '5', label: 'modos de inspección', color: 'var(--c-blue)' },
+  { n: '4', label: 'frameworks de backend', color: 'var(--c-green)' },
+  { n: '7', label: 'drivers SQL capturados', color: 'var(--c-teal)' },
+  { n: '0', label: 'telemetría enviada', color: 'var(--c-magenta)' },
+];
+---
+
+<section id="top" class="grid-field relative overflow-hidden pt-[calc(var(--nav-h)+56px)] pb-16">
+  <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+    <div class="absolute -top-24 -right-32 h-[420px] w-[420px] bg-blue-field opacity-70"></div>
+    <div
+      class="absolute top-[18%] right-[8%] hidden h-16 w-16 bg-blue opacity-25 lg:block"
+      style="animation: drift 17s ease-in-out infinite"
+    >
+    </div>
+    <div
+      class="absolute top-[52%] right-[26%] hidden h-8 w-8 bg-teal opacity-30 lg:block"
+      style="animation: drift 23s ease-in-out infinite reverse"
+    >
+    </div>
+    <div
+      class="absolute top-[46%] left-[2%] hidden h-10 w-10 bg-violet opacity-20 lg:block"
+      style="animation: drift 29s ease-in-out infinite"
+    >
+    </div>
+    <div class="absolute bottom-0 left-0 h-[6px] w-full bg-blue-deep opacity-40"></div>
+  </div>
+
+  <div class="shell relative">
+    <div class="grid items-start gap-10 lg:grid-cols-12">
+      <div class="lg:col-span-7">
+        <div class="reveal mb-6 flex flex-wrap items-center gap-[3px]">
+          <span class="label bg-blue px-3 py-2 text-on-accent">Open source · MIT</span>
+          <span class="label bg-surface-3 px-3 py-2 text-ink-2">v{VERSION}</span>
+          <span class="label bg-surface-3 px-3 py-2 text-ink-2">Windows 10 / 11</span>
+          <span class="label bg-surface-3 px-3 py-2 text-ink-2">Electron · Node 22.22+</span>
+        </div>
+
+        <h1 class="reveal text-[clamp(2.5rem,6.4vw,4.6rem)]" style="--d: 60ms">
+          Del clic<br />
+          <span class="text-blue">a la base de datos.</span>
+        </h1>
+
+        <p class="reveal mono mt-5 text-[12px] leading-relaxed tracking-tight text-ink-2 sm:text-[13px]" style="--d: 120ms">
+          elemento <span class="text-blue">→</span> manejador <span class="text-violet">→</span> petición
+          <span class="text-cyan">→</span> ruta <span class="text-green">→</span> SQL
+          <span class="text-teal">→</span> base de datos
+        </p>
+
+        <p class="reveal mt-6 max-w-[62ch] text-[17px] leading-relaxed text-ink-2 sm:text-[18px]" style="--d: 180ms">
+          Fullstack DevTools es un IDE de escritorio que sigue una aplicación web local de punta a punta. Apuntas a un
+          botón y ves el manejador que lo atiende, la petición que dispara, la ruta del backend que la recibe, la
+          consulta SQL que ejecuta y las filas reales que devuelve el driver. Sin saltar entre DevTools, el editor, el
+          log del servidor y el cliente de base de datos.
+        </p>
+
+        <div class="reveal mt-8 flex flex-wrap gap-[3px]" style="--d: 240ms">
+          <a href={SETUP_URL} class="btn btn-primary">
+            <Icon name="download" size={17} /> Descargar v{VERSION}
+          </a>
+          <a href={REPO} target="_blank" rel="noreferrer noopener" class="btn">
+            <Icon name="github" size={17} /> Ver el código
+          </a>
+          <a href="#modos" class="btn">
+            <Icon name="arrow-down" size={17} /> Recorrer los modos
+          </a>
+        </div>
+
+        <div class="reveal mt-10 grid grid-cols-2 gap-[3px] sm:grid-cols-4" style="--d: 300ms">
+          {
+            stats.map((s) => (
+              <div class="bg-surface p-4">
+                <p class="text-[34px] leading-none font-bold tracking-[-0.04em]" style={`color: ${s.color}`}>
+                  {s.n}
+                </p>
+                <p class="label mt-2 leading-snug text-ink-3">{s.label}</p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+
+      <div class="reveal lg:col-span-5" style="--d: 200ms">
+        <div class="bg-surface">
+          <div class="flex items-center gap-3 bg-blue px-4 py-3 text-on-accent">
+            <span class="h-2 w-2 shrink-0 bg-on-accent" style="animation: blink 1.4s steps(1) infinite"></span>
+            <span class="label">Captura activa</span>
+            <span class="label ml-auto opacity-80">56 peticiones</span>
+          </div>
+
+          <div class="flex items-center gap-2 bg-surface-2 px-4 py-2">
+            <Icon name="search" size={13} class="shrink-0 text-ink-3" />
+            <span class="mono text-[11px] text-ink-3">404 · 4xx · pendiente · ERR · sin estado</span>
+          </div>
+
+          <div>
+            {
+              requests.map((r, i) => (
+                <div
+                  class="req-row flex flex-col gap-1 px-4 py-3"
+                  style={`--d: ${420 + i * 110}ms; background-color: ${i % 2 ? 'var(--c-surface)' : 'var(--c-surface-2)'}`}
+                >
+                  <div class="flex items-baseline gap-2">
+                    <span class="mono text-[11px] font-bold text-green">{r.method}</span>
+                    <span class="mono truncate text-[12px] text-ink">{r.path}</span>
+                  </div>
+                  <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <span class="mono text-[10px] text-ink-3">{r.at}</span>
+                    <span
+                      class="label px-[6px] py-[2px] text-[9px]"
+                      style={`background-color: ${r.kind === 'CLIC' ? 'var(--c-blue)' : 'var(--c-surface-3)'}; color: ${r.kind === 'CLIC' ? 'var(--c-on-accent)' : 'var(--c-ink-2)'}`}
+                    >
+                      {r.kind}
+                    </span>
+                    <span class="mono text-[10px] text-green">200 · OK</span>
+                    <span class="mono text-[10px] text-ink-2">{r.ms} ms</span>
+                    <span class="mono text-[10px] text-blue">{r.at2}</span>
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+
+          <div class="bg-surface-3 px-4 py-3">
+            <p class="mono text-[11px] leading-relaxed text-ink-2">
+              Cuerpos JSON completos, solo en memoria. Cabeceras y query sensibles, enmascaradas.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            id="hero-json"
+            class="flex w-full items-center justify-between gap-2 bg-surface-2 px-4 py-3 text-ink hover:bg-blue hover:text-on-accent"
+          >
+            <span class="label">Ver los cuerpos en modo JSON</span>
+            <Icon name="arrow-right" size={16} />
+          </button>
+        </div>
+
+        <div class="mt-[3px] bg-blue-field p-4">
+          <p class="label mb-2 text-blue">Qué resuelve</p>
+          <p class="text-[14px] leading-relaxed text-ink-2">
+            Para un texto formateado en pantalla —<span class="mono text-ink">RD$ 1,500.00</span>— el inspector
+            identifica el objeto de respuesta que alimentó al componente, la función y la línea JSX que lo renderizan, y
+            la subfunción que ejecutó la petición.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal mt-12" style="--d: 120ms">
+      <Shot
+        src={asset('foto-main.png')}
+        alt="Ventana de Backend DevTools con una aplicación local abierta, el tooltip de procedencia bloqueado sobre un botón y el panel de inspección en modo JSON mostrando la respuesta de /api/fiscal-periods."
+        title="Backend DevTools Desktop · espacio de trabajo · inspección ON"
+        caption="El tooltip bloqueado con Ctrl sobre el botón «Editar»: componente que lo renderiza, pila de iniciadores, petición y archivo:línea clicable. A la derecha, el panel en modo JSON con el cuerpo completo de la respuesta."
+        width={1365}
+        height={768}
+        eager
+      />
+    </div>
+  </div>
+</section>
+
+<style>
+  .req-row {
+    opacity: 0;
+    transform: translateX(14px);
+    animation: req-in 520ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-delay: var(--d, 0ms);
+  }
+  @keyframes req-in {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .req-row {
+      opacity: 1;
+      transform: none;
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  document.getElementById('hero-json')?.addEventListener('click', () => {
+    window.dispatchEvent(new CustomEvent('fd:mode', { detail: 'json' }));
+    document.getElementById('modos')?.scrollIntoView({ block: 'start' });
+  });
+</script>

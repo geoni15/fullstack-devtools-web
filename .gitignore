@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.astro/
+.qa/
+.DS_Store
+*.log
+
+# Originales sueltos: las copias que usa el sitio viven en public/media/
+/backend.png
+/db.png
+/frontend.png
+/htmlcss.png
+/json.png
+/mapa.png
+/foto main.png
+/video.mp4
+/2do video.mp4

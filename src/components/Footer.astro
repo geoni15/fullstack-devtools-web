@@ -1,0 +1,178 @@
+---
+import Icon from './Icon.astro';
+import { REPO, RELEASES, SETUP_URL, PORTABLE_URL, SOCIALS, VERSION } from '../lib/site';
+
+const repoLinks = [
+  { label: 'Repositorio', href: REPO, icon: 'github' },
+  { label: 'Releases', href: RELEASES, icon: 'download' },
+  { label: 'Especificación del producto', href: `${REPO}/blob/main/BACKEND_DEVTOOLS_DESKTOP_SPEC.md`, icon: 'terminal' },
+  { label: 'Decisiones de arquitectura', href: `${REPO}/blob/main/docs/decisions.md`, icon: 'branch' },
+  { label: 'Licencia MIT', href: `${REPO}/blob/main/LICENSE`, icon: 'badge' },
+  { label: 'Issues', href: `${REPO}/issues`, icon: 'activity' },
+];
+---
+
+<footer class="relative bg-surface">
+  <div class="bg-blue">
+    <div class="shell flex flex-wrap items-center justify-between gap-8 py-14">
+      <div class="max-w-[52ch]">
+        <p class="label mb-3 text-on-accent opacity-90">Descarga · v{VERSION}</p>
+        <h2 class="text-[clamp(1.8rem,4vw,2.9rem)] text-on-accent">
+          De la carpeta del proyecto a la base de datos, en una sola ventana.
+        </h2>
+        <p class="mt-4 text-[15.5px] leading-relaxed text-on-accent">
+          Binarios para Windows x64, código fuente completo y licencia MIT. Sin registro, sin cuenta y sin telemetría.
+        </p>
+      </div>
+      <div class="flex flex-col gap-[3px]">
+        <a
+          href={SETUP_URL}
+          class="flex items-center gap-3 bg-on-accent px-6 py-4 text-blue transition-colors duration-150 hover:bg-blue-deep hover:text-on-deep"
+        >
+          <Icon name="download" size={18} />
+          <span class="label">Instalador · setup.exe</span>
+        </a>
+        <a
+          href={PORTABLE_URL}
+          class="flex items-center gap-3 bg-blue-deep px-6 py-4 text-on-deep transition-colors duration-150 hover:bg-on-deep hover:text-blue-deep"
+        >
+          <Icon name="window" size={18} />
+          <span class="label">Portable · un solo .exe</span>
+        </a>
+        <a
+          href={REPO}
+          target="_blank"
+          rel="noreferrer noopener"
+          class="flex items-center gap-3 bg-blue-deep px-6 py-4 text-on-deep transition-colors duration-150 hover:bg-on-deep hover:text-blue-deep"
+        >
+          <Icon name="github" size={18} />
+          <span class="label">Clonar el repositorio</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="shell grid gap-10 py-14 lg:grid-cols-12">
+    <div class="lg:col-span-5">
+      <div class="flex items-center gap-3">
+        <svg width="34" height="34" viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" fill="var(--c-blue-deep)"></rect>
+          <rect x="4" y="6" width="7" height="7" fill="var(--c-blue)"></rect>
+          <rect x="12.5" y="12.5" width="7" height="7" fill="var(--c-cyan)"></rect>
+          <rect x="21" y="19" width="7" height="7" fill="var(--c-green)"></rect>
+          <rect x="10" y="9" width="4" height="2" fill="var(--c-ink)"></rect>
+          <rect x="18.5" y="15.5" width="4" height="2" fill="var(--c-ink)"></rect>
+        </svg>
+        <span class="leading-none">
+          <span class="block text-[17px] font-bold tracking-[-0.02em]">Fullstack DevTools</span>
+          <span class="label block text-blue">Backend DevTools Desktop</span>
+        </span>
+      </div>
+      <p class="mt-5 max-w-[46ch] text-[14.5px] leading-relaxed text-ink-2">
+        Devtool de escritorio open source para seguir la cadena completa de una aplicación web local: elemento,
+        manejador, petición, ruta, consulta y base de datos, con la evidencia de cada tramo a la vista.
+      </p>
+
+      <p class="label mt-8 mb-3 text-ink-3">Redes del desarrollador</p>
+      <div class="grid gap-[3px] sm:grid-cols-2">
+        {
+          SOCIALS.map((s) => (
+            <a
+              href={s.href}
+              target="_blank"
+              rel="noreferrer noopener"
+              class="social group flex items-center gap-3 bg-surface-2 px-4 py-4"
+              style={`--social: ${s.color}`}
+            >
+              <span class="social-mark flex h-9 w-9 shrink-0 items-center justify-center bg-surface text-ink-2">
+                <Icon name={s.icon} size={18} />
+              </span>
+              <span class="min-w-0">
+                <span class="label block text-ink">{s.name}</span>
+                <span class="mono block truncate text-[10.5px] text-ink-3">{s.handle}</span>
+              </span>
+              <Icon name="external" size={13} class="ml-auto shrink-0 text-ink-3" />
+            </a>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="lg:col-span-4">
+      <p class="label mb-3 text-ink-3">En el repositorio</p>
+      <div class="grid gap-[2px]">
+        {
+          repoLinks.map((l) => (
+            <a
+              href={l.href}
+              target="_blank"
+              rel="noreferrer noopener"
+              class="flex items-center gap-3 bg-surface-2 px-4 py-3 text-ink-2 transition-colors duration-150 hover:bg-blue hover:text-on-accent"
+            >
+              <Icon name={l.icon} size={15} />
+              <span class="label">{l.label}</span>
+              <Icon name="arrow-right" size={14} class="ml-auto" />
+            </a>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="lg:col-span-3">
+      <p class="label mb-3 text-ink-3">Ficha técnica</p>
+      <dl class="grid gap-[2px]">
+        {
+          [
+            ['Versión', VERSION],
+            ['Licencia', 'MIT'],
+            ['Plataforma', 'Windows 10 / 11 x64'],
+            ['Node', '22.22 o superior'],
+            ['Base', 'Electron + TypeScript'],
+            ['Telemetría', 'Ninguna'],
+          ].map(([k, v], i) => (
+            <div
+              class="grid grid-cols-[86px_1fr] gap-2 px-3 py-3"
+              style={`background-color: ${i % 2 ? 'var(--c-surface)' : 'var(--c-surface-2)'}`}
+            >
+              <dt class="label text-ink-3">{k}</dt>
+              <dd class="mono text-[11px] text-ink">{v}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </div>
+
+  <div class="bg-surface-2">
+    <div class="shell flex flex-wrap items-center justify-between gap-4 py-5">
+      <p class="mono text-[11px] text-ink-3">
+        Fullstack DevTools · v{VERSION} · MIT · desarrollado y probado en Windows
+      </p>
+      <div class="flex flex-wrap items-center gap-[3px]">
+        <span class="label bg-surface px-3 py-2 text-ink-3">Sin telemetría</span>
+        <span class="label bg-surface px-3 py-2 text-ink-3">Sin cuenta</span>
+        <a href="#top" class="label flex items-center gap-2 bg-surface px-3 py-2 text-ink-2 hover:bg-blue hover:text-on-accent">
+          Volver arriba <Icon name="arrow-down" size={13} class="rotate-180" />
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .social {
+    transition: background-color 150ms linear;
+  }
+  .social-mark {
+    transition:
+      background-color 150ms linear,
+      color 150ms linear;
+  }
+  .social:hover {
+    background-color: var(--c-surface-3);
+  }
+  .social:hover .social-mark {
+    background-color: var(--social);
+    color: var(--c-on-accent);
+  }
+</style>

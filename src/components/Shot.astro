@@ -1,0 +1,50 @@
+---
+import Icon from './Icon.astro';
+
+type Props = {
+  src: string;
+  alt: string;
+  title: string;
+  caption: string;
+  width: number;
+  height: number;
+  eager?: boolean;
+};
+
+const { src, alt, title, caption, width, height, eager = false } = Astro.props;
+---
+
+<figure class="bg-surface-2">
+  <div class="flex items-center gap-3 bg-surface-3 px-3 py-2">
+    <span class="flex shrink-0 gap-[3px]" aria-hidden="true">
+      <span class="h-[9px] w-[9px] bg-red"></span>
+      <span class="h-[9px] w-[9px] bg-amber"></span>
+      <span class="h-[9px] w-[9px] bg-green"></span>
+    </span>
+    <span class="mono truncate text-[11px] text-ink-2">{title}</span>
+    <button
+      type="button"
+      data-lightbox={src}
+      data-lightbox-caption={caption}
+      class="ml-auto flex h-7 shrink-0 items-center gap-2 bg-surface px-2 text-ink-2 hover:bg-blue hover:text-on-accent"
+    >
+      <Icon name="expand" size={13} />
+      <span class="label">Ampliar</span>
+    </button>
+  </div>
+  <button type="button" data-lightbox={src} data-lightbox-caption={caption} class="block w-full cursor-zoom-in" aria-label={`Ampliar: ${caption}`}>
+    <img
+      src={src}
+      alt={alt}
+      width={width}
+      height={height}
+      loading={eager ? 'eager' : 'lazy'}
+      decoding="async"
+      class="w-full"
+    />
+  </button>
+  <figcaption class="mono flex items-start gap-2 bg-surface px-3 py-2 text-[11px] leading-relaxed text-ink-3">
+    <span class="mt-[5px] h-[6px] w-[6px] shrink-0 bg-blue" aria-hidden="true"></span>
+    <span>{caption}</span>
+  </figcaption>
+</figure>

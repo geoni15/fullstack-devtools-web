@@ -1,0 +1,55 @@
+---
+import Icon from './Icon.astro';
+import { FEATURES } from '../lib/site';
+---
+
+<section id="capacidades" class="relative bg-surface py-16">
+  <div class="shell">
+    <div class="reveal mb-8 flex flex-wrap items-end justify-between gap-6">
+      <div class="max-w-[70ch]">
+        <p class="label mb-3 text-blue">Capacidades</p>
+        <h2 class="text-[clamp(1.9rem,4.4vw,3.2rem)]">Lo que hace, sin adornos.</h2>
+        <p class="mt-5 text-[16px] leading-relaxed text-ink-2 sm:text-[17px]">
+          Cada capacidad existe como componente real de la aplicación: captura en el navegador, instrumentación del
+          proceso de Node, análisis estático del código y un editor que escribe con guardado explícito.
+        </p>
+      </div>
+      <span class="label bg-surface-2 px-4 py-3 text-ink-3">12 capacidades · v0.6.0</span>
+    </div>
+
+    <div class="grid gap-[3px] md:grid-cols-2 xl:grid-cols-3">
+      {
+        FEATURES.map((f, i) => (
+          <article class="feat reveal group bg-surface-2 p-6" style={`--feat: ${f.color}; --d: ${(i % 3) * 70}ms`}>
+            <div class="mb-5 flex items-center justify-between gap-3">
+              <span class="feat-mark flex h-11 w-11 items-center justify-center bg-surface text-ink-2">
+                <Icon name={f.icon} size={21} />
+              </span>
+              <span class="label text-ink-3">{f.tag}</span>
+            </div>
+            <h3 class="text-[18.5px] leading-snug">{f.title}</h3>
+            <p class="mt-3 text-[14.5px] leading-relaxed text-ink-2">{f.body}</p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .feat {
+    transition: background-color 180ms linear;
+  }
+  .feat-mark {
+    transition:
+      background-color 180ms linear,
+      color 180ms linear;
+  }
+  .feat:hover {
+    background-color: var(--c-surface-3);
+  }
+  .feat:hover .feat-mark {
+    background-color: var(--feat);
+    color: var(--c-on-accent);
+  }
+</style>

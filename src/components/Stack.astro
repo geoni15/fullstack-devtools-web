@@ -1,0 +1,164 @@
+---
+import Icon from './Icon.astro';
+import { STACK, ARCHITECTURE, LIMITS, REPO } from '../lib/site';
+
+const totalItems = STACK.reduce((n, g) => n + g.items.length, 0);
+---
+
+<section id="stack" class="relative bg-surface py-16">
+  <div class="shell">
+    <div class="reveal mb-8 flex flex-wrap items-end justify-between gap-6">
+      <div class="max-w-[70ch]">
+        <p class="label mb-3 text-teal">Compatibilidad</p>
+        <h2 class="text-[clamp(1.9rem,4.4vw,3.2rem)]">Se acopla al stack que ya está corriendo.</h2>
+        <p class="mt-5 text-[16px] leading-relaxed text-ink-2 sm:text-[17px]">
+          No exige migrar nada ni añadir un SDK al proyecto. La instrumentación se conecta al proceso de Node que ya
+          existe y el análisis estático lee los archivos tal como están en disco.
+        </p>
+      </div>
+      <div class="flex gap-[3px]">
+        <div class="bg-surface-2 px-5 py-4">
+          <p class="mono text-[26px] leading-none text-teal">{totalItems}</p>
+          <p class="label mt-2 text-ink-3">Integraciones</p>
+        </div>
+        <div class="bg-surface-2 px-5 py-4">
+          <p class="mono text-[26px] leading-none text-blue">{STACK.length}</p>
+          <p class="label mt-2 text-ink-3">Frentes</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid gap-[3px] md:grid-cols-2 xl:grid-cols-3">
+      {
+        STACK.map((g, i) => (
+          <article class="reveal stk bg-surface-2" style={`--stk: ${g.color}; --d: ${(i % 3) * 70}ms`}>
+            <div class="flex items-center gap-3 bg-surface-3 px-5 py-4">
+              <span class="h-3 w-3 shrink-0" style={`background-color: ${g.color}`} />
+              <h3 class="text-[16px]">{g.label}</h3>
+            </div>
+            <div class="p-5">
+              <p class="text-[13.5px] leading-relaxed text-ink-2">{g.note}</p>
+              <div class="mt-4 flex flex-wrap gap-[3px]">
+                {g.items.map((it) => (
+                  <span class="mono chip bg-surface px-3 py-2 text-[12.5px] text-ink-2">
+                    {it}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+
+    <div class="mt-14 grid gap-[3px] lg:grid-cols-12">
+      <div class="reveal self-start bg-surface-2 lg:col-span-7">
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-surface-3 px-5 py-4">
+          <div class="flex items-center gap-3">
+            <span class="text-violet"><Icon name="branch" size={18} /></span>
+            <h3 class="text-[16px]">Monorepo con npm workspaces</h3>
+          </div>
+          <span class="mono text-[11.5px] text-ink-3">TypeScript estricto</span>
+        </div>
+        <div class="grid gap-[3px]">
+          {
+            ARCHITECTURE.map((a) => (
+              <div class="grid gap-[3px] bg-surface-2 sm:grid-cols-[minmax(0,320px)_1fr]">
+                <div class="flex items-center gap-3 bg-surface px-5 py-4">
+                  <span class="h-2.5 w-2.5 shrink-0" style={`background-color: ${a.color}`} />
+                  <span class="mono text-[13px] break-words">{a.path}</span>
+                </div>
+                <div class="bg-surface px-5 py-4 text-[14px] leading-relaxed text-ink-2">{a.role}</div>
+              </div>
+            ))
+          }
+        </div>
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-surface px-5 py-4">
+          <p class="mono text-[11.5px] text-ink-3">protocolo IPC tipado · sin any en los canales</p>
+          <a class="btn" href={`${REPO}/tree/main`} target="_blank" rel="noopener noreferrer">
+            <Icon name="github" size={15} />
+            Ver el árbol
+          </a>
+        </div>
+      </div>
+
+      <div class="reveal bg-blue-field p-6 lg:col-span-5" style="--d: 90ms">
+        <p class="label mb-4 text-blue">Cómo entra en el proyecto</p>
+        <ol class="grid gap-[3px]">
+          {[
+            {
+              n: '01',
+              t: 'Abrir la carpeta raíz',
+              b: 'Se elige el directorio del proyecto. Todo el acceso posterior queda limitado a esa raíz.',
+            },
+            {
+              n: '02',
+              t: 'Arrancar el backend con inspector',
+              b: 'node --inspect o el proceso ya levantado. Sin inspector sigue habiendo análisis estático.',
+            },
+            {
+              n: '03',
+              t: 'Cargar la aplicación en el navegador integrado',
+              b: 'La URL local se abre en la ventana aislada y empieza la captura de red y de consola.',
+            },
+            {
+              n: '04',
+              t: 'Interactuar y leer la cadena',
+              b: 'Cada clic produce nodos con evidencia: estática cuando se leyó del código, runtime cuando se observó.',
+            },
+          ].map((s) => (
+            <li class="grid grid-cols-[52px_1fr] gap-[3px] bg-blue-field">
+              <span class="mono flex items-start justify-center bg-blue py-4 text-[13px] text-on-accent">{s.n}</span>
+              <div class="bg-surface px-4 py-4">
+                <p class="text-[15px]">{s.t}</p>
+                <p class="mt-1.5 text-[13.5px] leading-relaxed text-ink-2">{s.b}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+
+    <div class="mt-14">
+      <div class="reveal mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p class="label mb-3 text-amber">Límites declarados</p>
+          <h3 class="text-[clamp(1.4rem,2.8vw,2rem)]">Lo que la versión 0.6 todavía no hace.</h3>
+        </div>
+        <span class="label bg-surface-2 px-4 py-3 text-ink-3">Publicado en el repositorio</span>
+      </div>
+      <div class="grid gap-[3px] md:grid-cols-2 xl:grid-cols-3">
+        {
+          LIMITS.map((l, i) => (
+            <article class="reveal lim bg-surface-2 p-6" style={`--d: ${(i % 3) * 70}ms`}>
+              <div class="mb-4 flex items-center gap-3">
+                <span class="h-2.5 w-2.5 bg-amber" />
+                <span class="mono text-[11.5px] text-ink-3">L{String(i + 1).padStart(2, '0')}</span>
+              </div>
+              <h4 class="text-[17px] leading-snug">{l.title}</h4>
+              <p class="mt-3 text-[14px] leading-relaxed text-ink-2">{l.body}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .chip {
+    transition:
+      background-color 140ms linear,
+      color 140ms linear;
+  }
+  .stk:hover .chip {
+    background-color: var(--stk);
+    color: var(--c-on-accent);
+  }
+  .lim {
+    transition: background-color 180ms linear;
+  }
+  .lim:hover {
+    background-color: var(--c-surface-3);
+  }
+</style>

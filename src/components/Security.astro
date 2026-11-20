@@ -1,0 +1,371 @@
+---
+import Icon from './Icon.astro';
+import { FINDINGS, GUARANTEES, VERSION } from '../lib/site';
+
+const SEVERITIES = [
+  { id: 'alta', label: 'Alta', color: 'var(--c-red)' },
+  { id: 'media', label: 'Media', color: 'var(--c-amber)' },
+  { id: 'baja', label: 'Baja', color: 'var(--c-cyan)' },
+  { id: 'info', label: 'Info', color: 'var(--c-ink-3)' },
+];
+
+const TYPES = [
+  { id: 'secret', label: 'Secretos' },
+  { id: 'exposure', label: 'Exposición' },
+  { id: 'transport', label: 'Transporte' },
+  { id: 'sink', label: 'Sumideros DOM' },
+];
+
+const counts = SEVERITIES.map((s) => ({
+  ...s,
+  n: FINDINGS.filter((f) => f.severity === s.id).length,
+}));
+---
+
+<section id="seguridad" class="relative bg-bg py-16">
+  <div class="shell">
+    <div class="reveal mb-8 grid gap-6 lg:grid-cols-12 lg:items-end">
+      <div class="lg:col-span-8">
+        <p class="label mb-3 text-red">Auditoría</p>
+        <h2 class="text-[clamp(1.9rem,4.4vw,3.2rem)]">Lo que el código entrega al navegador.</h2>
+        <p class="mt-5 max-w-[68ch] text-[16px] leading-relaxed text-ink-2 sm:text-[17px]">
+          El auditor recorre el HTML, el CSS y el JavaScript servidos, más las peticiones capturadas en la sesión. Busca
+          exposición del servidor, transporte sin cifrar, secretos con formato conocido y sumideros DOM en código
+          propio. Todo el análisis ocurre en el equipo: nada se envía fuera.
+        </p>
+      </div>
+      <div class="lg:col-span-4">
+        <div class="bg-surface-2 p-5">
+          <p class="label text-ink-3">Informe de ejemplo</p>
+          <p class="mono mt-2 text-[13px] text-ink-2">audit · v{VERSION} · local</p>
+          <div class="mt-4 flex items-end gap-3">
+            <span class="mono text-[40px] leading-none text-red">{FINDINGS.length}</span>
+            <span class="pb-1 text-[13px] text-ink-2">hallazgos sobre una sesión de ejemplo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal bg-surface-2" data-audit>
+      <div class="grid gap-[3px]">
+        <div class="flex flex-wrap items-center justify-between gap-4 bg-surface px-5 py-4">
+          <div class="flex items-center gap-3">
+            <span class="text-red"><Icon name="shield" size={20} /></span>
+            <div>
+              <p class="text-[15px]">Auditoría de seguridad</p>
+              <p class="mono text-[11.5px] text-ink-3">reglas textuales · sin envío de datos</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-[3px]">
+            <span class="mono bg-surface-2 px-3 py-2 text-[12px] text-ink-2" data-audit-count>
+              {FINDINGS.length} / {FINDINGS.length}
+            </span>
+            <button type="button" class="btn" data-audit-run>
+              <Icon name="reset" size={15} />
+              <span data-audit-run-label>Reanalizar</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="relative overflow-hidden bg-surface px-5 py-4">
+          <div class="mb-3 flex items-center justify-between gap-4">
+            <p class="label text-ink-3">Distribución por severidad</p>
+            <p class="mono text-[11.5px] text-ink-3">clic en un tramo para filtrar</p>
+          </div>
+          <div class="flex h-11 gap-[3px]" data-audit-bar>
+            {
+              counts.map((s) => (
+                <button
+                  type="button"
+                  class="seg flex items-center justify-between gap-2 px-3 text-left"
+                  style={`--seg: ${s.color}; flex-grow: ${s.n}; flex-basis: 0`}
+                  data-seg={s.id}
+                  aria-pressed="false"
+                  title={`${s.label}: ${s.n}`}
+                >
+                  <span class="label">{s.label}</span>
+                  <span class="mono text-[13px]">{s.n}</span>
+                </button>
+              ))
+            }
+          </div>
+          <div class="scan" data-audit-scan aria-hidden="true"></div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-x-6 gap-y-4 bg-surface px-5 py-4">
+          <div class="flex flex-wrap items-center gap-[3px]">
+            <span class="label mr-2 text-ink-3">Severidad</span>
+            <button type="button" class="ctl" data-sev="all" aria-pressed="true">Todas</button>
+            {
+              SEVERITIES.map((s) => (
+                <button type="button" class="ctl" data-sev={s.id} aria-pressed="false">
+                  {s.label}
+                </button>
+              ))
+            }
+          </div>
+          <div class="flex flex-wrap items-center gap-[3px]">
+            <span class="label mr-2 text-ink-3">Tipo</span>
+            <button type="button" class="ctl" data-type="all" aria-pressed="true">Todos</button>
+            {
+              TYPES.map((t) => (
+                <button type="button" class="ctl" data-type={t.id} aria-pressed="false">
+                  {t.label}
+                </button>
+              ))
+            }
+          </div>
+          <label class="flex min-w-[210px] flex-1 items-center gap-2 bg-surface-2 px-3 py-2">
+            <span class="text-ink-3"><Icon name="search" size={15} /></span>
+            <input
+              type="search"
+              class="mono w-full bg-transparent text-[12.5px] text-ink outline-none placeholder:text-ink-3"
+              placeholder="regla, archivo o evidencia"
+              data-audit-query
+              aria-label="Buscar en los hallazgos"
+            />
+          </label>
+        </div>
+
+        <div class="grid gap-[3px]" data-audit-list>
+          {
+            FINDINGS.map((f) => {
+              const sev = SEVERITIES.find((s) => s.id === f.severity)!;
+              const type = f.rule.split('.')[0];
+              return (
+                <article
+                  class="find grid gap-[3px] bg-surface-2 sm:grid-cols-[104px_1fr]"
+                  data-find
+                  data-sev={f.severity}
+                  data-type={type}
+                  data-text={`${f.rule} ${f.detail} ${f.source} ${f.evidence}`.toLowerCase()}
+                  style={`--sev: ${sev.color}`}
+                >
+                  <div class="sev flex items-center gap-2 px-4 py-4 sm:flex-col sm:items-start sm:justify-center sm:gap-1">
+                    <span class="label">{sev.label}</span>
+                    <span class="mono text-[11px] opacity-70">{type}</span>
+                  </div>
+                  <div class="min-w-0 bg-surface p-5">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                      <h3 class="mono text-[14px]" style={`color: ${sev.color}`}>
+                        {f.rule}
+                      </h3>
+                      <span class="mono text-[11.5px] text-ink-3">{f.source}</span>
+                    </div>
+                    <p class="mt-2 text-[14.5px] leading-relaxed text-ink-2">{f.detail}</p>
+                    <p class="mono mt-3 overflow-x-auto bg-surface-2 px-3 py-2 text-[12.5px] text-ink">{f.evidence}</p>
+                  </div>
+                </article>
+              );
+            })
+          }
+        </div>
+
+        <div class="bg-surface px-5 py-8 text-center" data-audit-empty hidden>
+          <p class="text-[15px]">Ningún hallazgo con esos criterios.</p>
+          <p class="mt-2 text-[13.5px] text-ink-3">
+            El filtro oculta las filas que no coinciden; el informe completo sigue intacto.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-4 bg-surface px-5 py-4">
+          <p class="mono text-[11.5px] text-ink-3" data-audit-status>
+            {FINDINGS.length} hallazgos · 4 reglas · severidad máxima alta
+          </p>
+          <button type="button" class="btn" data-audit-reset>
+            <Icon name="filter" size={15} />
+            Quitar filtros
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-14">
+      <div class="reveal mb-6 flex flex-wrap items-end justify-between gap-4">
+        <h3 class="text-[clamp(1.4rem,2.8vw,2rem)]">Garantías que la aplicación mantiene por diseño.</h3>
+        <span class="label bg-surface-2 px-4 py-3 text-ink-3">Privacidad por construcción</span>
+      </div>
+      <div class="grid gap-[3px] md:grid-cols-2 xl:grid-cols-3">
+        {
+          GUARANTEES.map((g, i) => (
+            <article class="reveal guar bg-surface p-6" style={`--d: ${(i % 3) * 70}ms`}>
+              <div class="mb-4 flex items-center gap-3">
+                <span class="text-green">
+                  <Icon name="lock" size={18} />
+                </span>
+                <span class="mono text-[11.5px] text-ink-3">{String(i + 1).padStart(2, '0')}</span>
+              </div>
+              <h4 class="text-[17px] leading-snug">{g.title}</h4>
+              <p class="mt-3 text-[14px] leading-relaxed text-ink-2">{g.body}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .ctl {
+    padding: 8px 13px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background-color: var(--c-surface-2);
+    color: var(--c-ink-2);
+    transition:
+      background-color 140ms linear,
+      color 140ms linear;
+  }
+  .ctl:hover {
+    background-color: var(--c-surface-3);
+    color: var(--c-ink);
+  }
+  .ctl[aria-pressed='true'] {
+    background-color: var(--c-blue);
+    color: var(--c-on-accent);
+  }
+  .seg {
+    background-color: var(--seg);
+    color: var(--c-on-accent);
+    min-width: 74px;
+    transition: filter 140ms linear;
+  }
+  .seg:hover {
+    filter: brightness(1.16);
+  }
+  .seg[aria-pressed='true'] {
+    filter: brightness(1.28);
+  }
+  .sev {
+    background-color: var(--sev);
+    color: var(--c-on-accent);
+  }
+  .find {
+    animation: find-in 260ms ease-out both;
+  }
+  .guar {
+    transition: background-color 180ms linear;
+  }
+  .guar:hover {
+    background-color: var(--c-surface-2);
+  }
+  .scan {
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    width: 34%;
+    background-color: var(--c-blue);
+    opacity: 0;
+    pointer-events: none;
+  }
+  [data-audit][data-scanning='true'] .scan {
+    opacity: 0.24;
+    animation: audit-scan 1100ms linear;
+  }
+  @keyframes audit-scan {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(300%);
+    }
+  }
+  @keyframes find-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .find {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-audit]');
+  if (root) {
+    const rows = Array.from(root.querySelectorAll<HTMLElement>('[data-find]'));
+    const count = root.querySelector<HTMLElement>('[data-audit-count]')!;
+    const status = root.querySelector<HTMLElement>('[data-audit-status]')!;
+    const empty = root.querySelector<HTMLElement>('[data-audit-empty]')!;
+    const query = root.querySelector<HTMLInputElement>('[data-audit-query]')!;
+    const runBtn = root.querySelector<HTMLButtonElement>('[data-audit-run]')!;
+    const runLabel = root.querySelector<HTMLElement>('[data-audit-run-label]')!;
+    const sevBtns = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-sev]'));
+    const typeBtns = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-type]'));
+    const segs = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-seg]'));
+
+    let sev = 'all';
+    let type = 'all';
+    let scanning = false;
+    let timer = 0;
+
+    const press = (list: HTMLButtonElement[], attr: string, value: string) => {
+      for (const b of list) b.setAttribute('aria-pressed', String(b.dataset[attr] === value));
+    };
+
+    const apply = () => {
+      const q = query.value.trim().toLowerCase();
+      let shown = 0;
+      let worst = 'info';
+      const rank: Record<string, number> = { alta: 3, media: 2, baja: 1, info: 0 };
+      for (const row of rows) {
+        const ok =
+          (sev === 'all' || row.dataset.sev === sev) &&
+          (type === 'all' || row.dataset.type === type) &&
+          (q === '' || (row.dataset.text ?? '').includes(q));
+        row.hidden = !ok;
+        if (ok) {
+          shown += 1;
+          if (rank[row.dataset.sev ?? 'info'] > rank[worst]) worst = row.dataset.sev ?? 'info';
+        }
+      }
+      count.textContent = `${shown} / ${rows.length}`;
+      empty.hidden = shown !== 0;
+      status.textContent =
+        shown === 0
+          ? 'sin coincidencias · filtros activos'
+          : `${shown} hallazgos · severidad máxima ${worst}${sev === 'all' && type === 'all' && q === '' ? ' · informe completo' : ' · filtrado'}`;
+      press(sevBtns, 'sev', sev);
+      press(typeBtns, 'type', type);
+      for (const s of segs) s.setAttribute('aria-pressed', String(s.dataset.seg === sev));
+    };
+
+    for (const b of sevBtns) b.addEventListener('click', () => ((sev = b.dataset.sev ?? 'all'), apply()));
+    for (const b of typeBtns) b.addEventListener('click', () => ((type = b.dataset.type ?? 'all'), apply()));
+    for (const s of segs)
+      s.addEventListener('click', () => ((sev = sev === s.dataset.seg ? 'all' : (s.dataset.seg ?? 'all')), apply()));
+    query.addEventListener('input', apply);
+
+    root.querySelector<HTMLButtonElement>('[data-audit-reset]')!.addEventListener('click', () => {
+      sev = 'all';
+      type = 'all';
+      query.value = '';
+      apply();
+    });
+
+    runBtn.addEventListener('click', () => {
+      if (scanning) return;
+      scanning = true;
+      runBtn.disabled = true;
+      runLabel.textContent = 'Analizando…';
+      root.dataset.scanning = 'true';
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        scanning = false;
+        runBtn.disabled = false;
+        runLabel.textContent = 'Reanalizar';
+        delete root.dataset.scanning;
+        apply();
+      }, 1150);
+    });
+
+    apply();
+  }
+</script>

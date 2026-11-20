@@ -1,0 +1,473 @@
+---
+import Icon from './Icon.astro';
+import { MODES, asset } from '../lib/site';
+---
+
+<section id="modos" class="relative bg-bg py-16">
+  <div class="shell">
+    <div class="reveal mb-8 max-w-[76ch]">
+      <p class="label mb-3 text-blue">Cinco modos · una sola selección</p>
+      <h2 class="text-[clamp(1.9rem,4.4vw,3.2rem)]">Cada modo enseña solo su categoría.</h2>
+      <p class="mt-5 text-[16px] leading-relaxed text-ink-2 sm:text-[17px]">
+        El mismo elemento seleccionado, cinco lecturas distintas. Nada de otro modo se cuela en el que estás viendo, y
+        si un modo no tiene dato lo dice en lugar de rellenar con lo demás. El tooltip de la página y el panel comparten
+        la misma ficha, así que lo que ves flotando es lo mismo que queda fijado.
+      </p>
+    </div>
+
+    <div id="carousel" class="reveal bg-surface" style="--d: 80ms">
+      <div class="flex flex-wrap items-stretch gap-[3px] bg-surface-2 p-[3px]">
+        <div role="tablist" aria-label="Modos de inspección" class="flex flex-wrap gap-[3px]">
+          {
+            MODES.map((m, i) => (
+              <button
+                type="button"
+                role="tab"
+                id={`tab-${m.id}`}
+                aria-controls={`panel-${m.id}`}
+                aria-selected={i === 0 ? 'true' : 'false'}
+                tabindex={i === 0 ? 0 : -1}
+                data-tab={i}
+                class="mode-tab label px-4 py-3"
+                style={`--mode: ${m.color}`}
+              >
+                {m.tab}
+              </button>
+            ))
+          }
+        </div>
+
+        <div class="flex w-full items-stretch gap-[3px] lg:ml-auto lg:w-auto">
+          <span id="mode-count" class="label flex flex-1 items-center justify-center bg-surface px-3 text-ink-3 lg:flex-none">01 / 05</span>
+          <button
+            id="mode-play"
+            type="button"
+            class="flex items-center gap-2 bg-surface px-3 text-ink hover:bg-blue hover:text-on-accent"
+            aria-label="Pausar el avance automático"
+          >
+            <span data-play-icon><Icon name="pause" size={15} /></span>
+            <span class="label hidden sm:inline" data-play-label>Pausar</span>
+          </button>
+          <button
+            id="mode-prev"
+            type="button"
+            class="flex w-11 items-center justify-center bg-surface text-ink hover:bg-blue hover:text-on-accent"
+            aria-label="Modo anterior"
+          >
+            <Icon name="arrow-left" size={17} />
+          </button>
+          <button
+            id="mode-next"
+            type="button"
+            class="flex w-11 items-center justify-center bg-surface text-ink hover:bg-blue hover:text-on-accent"
+            aria-label="Modo siguiente"
+          >
+            <Icon name="arrow-right" size={17} />
+          </button>
+        </div>
+      </div>
+
+      <div class="h-[3px] w-full bg-surface-3">
+        <div id="mode-progress" class="h-full w-full origin-left bg-blue" style="transform: scaleX(0)"></div>
+      </div>
+
+      <div class="grid gap-[3px] bg-surface-2 lg:grid-cols-12">
+        <div class="grid-field flex min-w-0 items-center lg:col-span-5">
+          <div id="mode-stage" class="scroll-x w-full min-w-0 overflow-auto">
+            <div class="flex min-h-full">
+              {
+                MODES.map((m, i) => (
+                  <div
+                    class="mode-slide m-auto p-5 sm:p-6"
+                    data-slide={i}
+                    role="tabpanel"
+                    id={`panel-${m.id}`}
+                    aria-labelledby={`tab-${m.id}`}
+                    hidden={i !== 0}
+                  >
+                    <button
+                      type="button"
+                      data-zoom-mode={i}
+                      class="block cursor-zoom-in"
+                      aria-label={`Ampliar la ficha del modo ${m.tab}`}
+                    >
+                      <img
+                        src={asset(m.file)}
+                        alt={`Ficha de inspección en modo ${m.tab}: ${m.title}.`}
+                        width={m.width}
+                        height={m.height}
+                        loading="eager"
+                        decoding="async"
+                        class="max-w-full"
+                      />
+                    </button>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="min-w-0 bg-surface lg:col-span-7">
+          {
+            MODES.map((m, i) => (
+              <div class="mode-copy flex h-full flex-col" data-copy={i} hidden={i !== 0}>
+                <div class="px-6 py-5" style={`background-color: ${m.color}`}>
+                  <p class="label text-on-accent opacity-80">{m.kicker}</p>
+                  <h3 class="mt-2 text-[clamp(1.25rem,2.4vw,1.7rem)] leading-tight text-on-accent">{m.title}</h3>
+                </div>
+                <p class="px-6 pt-6 text-[16px] leading-relaxed text-ink-2">{m.body}</p>
+                <dl class="mt-6 grid gap-[2px] px-6">
+                  {m.rows.map((row, ri) => (
+                    <div
+                      class="grid grid-cols-[96px_minmax(0,1fr)] items-start gap-3 px-3 py-[10px]"
+                      style={`background-color: ${ri % 2 ? 'var(--c-surface)' : 'var(--c-surface-2)'}`}
+                    >
+                      <dt class="label pt-[2px] text-ink-3">{row.k}</dt>
+                      <dd class="mono text-[12px] leading-relaxed break-words text-ink">{row.v}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <div class="mt-6 flex items-start gap-3 bg-surface-2 px-6 py-4">
+                  <span class="mt-[6px] h-[7px] w-[7px] shrink-0 bg-amber" aria-hidden="true" />
+                  <p class="mono text-[11.5px] leading-relaxed text-ink-2">{m.excludes}</p>
+                </div>
+                <div class="mt-auto px-6 py-6">
+                  <button
+                    type="button"
+                    data-zoom-mode={i}
+                    class="flex w-full items-center justify-between gap-2 bg-surface-2 px-4 py-4 text-ink hover:bg-blue hover:text-on-accent"
+                  >
+                    <span class="label">Ampliar la ficha · {m.width} × {m.height} px</span>
+                    <Icon name="expand" size={16} />
+                  </button>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-[3px] bg-surface-2 p-[3px]">
+        {
+          MODES.map((m, i) => (
+            <button
+              type="button"
+              data-dot={i}
+              class="mode-dot flex flex-1 items-center gap-2 bg-surface px-3 py-3 text-left"
+              style={`--mode: ${m.color}`}
+              aria-label={`Ir al modo ${m.tab}`}
+            >
+              <span class="dot-mark h-[10px] w-[10px] shrink-0" />
+              <span class="label truncate text-ink-3">{m.tab}</span>
+            </button>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="reveal mt-[3px] grid gap-[3px] md:grid-cols-3">
+      <div class="bg-surface p-5">
+        <p class="label mb-2 text-amber">Cuando no hay dato</p>
+        <p class="mono text-[12px] leading-relaxed text-ink-2">
+          «Sin SQL asociado a este elemento: no hay ruta backend resuelta.» El modo vacío explica por qué lo está.
+        </p>
+      </div>
+      <div class="bg-surface p-5">
+        <p class="label mb-2 text-violet">Shift y Ctrl</p>
+        <p class="mono text-[12px] leading-relaxed text-ink-2">
+          Shift muestra el tooltip mientras se mantiene. Ctrl lo fija: acepta scroll y cada archivo:línea salta al
+          editor. Esc lo suelta.
+        </p>
+      </div>
+      <div class="bg-surface p-5">
+        <p class="label mb-2 text-green">Perfiles de manejador</p>
+        <p class="mono text-[12px] leading-relaxed text-ink-2">
+          Nombre real o firma observada —async (req, res) =&gt;, function (e), x =&gt;— con etiquetas async, await,
+          generador, flecha y try/catch. Nunca «función anónima».
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .mode-tab {
+    background-color: var(--c-surface);
+    color: var(--c-ink-2);
+    transition:
+      background-color 160ms linear,
+      color 160ms linear;
+  }
+  .mode-tab:hover {
+    background-color: var(--c-surface-3);
+    color: var(--c-ink);
+  }
+  .mode-tab[aria-selected='true'] {
+    background-color: var(--mode);
+    color: var(--c-on-accent);
+  }
+  .mode-dot {
+    transition: background-color 160ms linear;
+  }
+  .mode-dot:hover {
+    background-color: var(--c-surface-3);
+  }
+  .dot-mark {
+    background-color: var(--mode);
+    opacity: 0.3;
+    transition: opacity 160ms linear;
+  }
+  .mode-dot[data-on='true'] {
+    background-color: var(--c-surface-3);
+  }
+  .mode-dot[data-on='true'] .dot-mark {
+    opacity: 1;
+  }
+  .mode-dot[data-on='true'] .label {
+    color: var(--c-ink);
+  }
+  .mode-slide:not([hidden]),
+  .mode-copy:not([hidden]) {
+    animation: mode-in 380ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes mode-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+  }
+  #mode-stage {
+    touch-action: pan-y;
+  }
+</style>
+
+<script>
+  import { MODES, asset } from '../lib/site';
+
+  const root = document.getElementById('carousel');
+  const tabs = Array.from(root?.querySelectorAll<HTMLButtonElement>('[data-tab]') ?? []);
+  const slides = Array.from(root?.querySelectorAll<HTMLElement>('[data-slide]') ?? []);
+  const copies = Array.from(root?.querySelectorAll<HTMLElement>('[data-copy]') ?? []);
+  const dots = Array.from(root?.querySelectorAll<HTMLButtonElement>('[data-dot]') ?? []);
+  const stage = document.getElementById('mode-stage');
+  const counter = document.getElementById('mode-count');
+  const progress = document.getElementById('mode-progress');
+  const playBtn = document.getElementById('mode-play');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const PAUSE_ICON =
+    '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M8 4v16 M16 4v16"/></svg>';
+  const PLAY_ICON =
+    '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M7 4l13 8-13 8V4z"/></svg>';
+
+  const DURATION = 7000;
+  let index = 0;
+  let playing = !reduced;
+  let hovering = false;
+  let visible = false;
+  let raf = 0;
+  let last = 0;
+  let elapsed = 0;
+
+  const shouldRun = () => playing && !hovering && visible && !document.hidden;
+
+  const fitStage = () => {
+    if (!stage) return;
+    const m = MODES[index];
+    const holder = stage.parentElement ?? stage;
+    const pad = window.innerWidth >= 640 ? 48 : 40;
+    const avail = Math.max(160, holder.clientWidth - pad);
+    const shown = Math.min(avail, m.width);
+    const needed = Math.round((shown * m.height) / m.width) + pad + 8;
+    const cap = window.innerWidth >= 1024 ? 600 : window.innerWidth >= 640 ? 500 : 440;
+    stage.style.height = `${Math.min(cap, Math.max(240, needed))}px`;
+  };
+
+  const paint = () => {
+    tabs.forEach((tab, i) => {
+      tab.setAttribute('aria-selected', String(i === index));
+      tab.tabIndex = i === index ? 0 : -1;
+    });
+    slides.forEach((el, i) => (el.hidden = i !== index));
+    copies.forEach((el, i) => (el.hidden = i !== index));
+    dots.forEach((el, i) => (el.dataset.on = String(i === index)));
+    if (counter)
+      counter.textContent = `${String(index + 1).padStart(2, '0')} / ${String(MODES.length).padStart(2, '0')}`;
+    fitStage();
+    if (stage) stage.scrollTop = 0;
+  };
+
+  const paintPlay = () => {
+    if (!playBtn) return;
+    const label = playBtn.querySelector('[data-play-label]');
+    const icon = playBtn.querySelector('[data-play-icon]');
+    if (label) label.textContent = playing ? 'Pausar' : 'Auto';
+    if (icon) icon.innerHTML = playing ? PAUSE_ICON : PLAY_ICON;
+    playBtn.setAttribute('aria-label', playing ? 'Pausar el avance automático' : 'Activar el avance automático');
+  };
+
+  const stop = () => {
+    if (raf) cancelAnimationFrame(raf);
+    raf = 0;
+    last = 0;
+  };
+
+  const loop = (time: number) => {
+    if (!shouldRun()) {
+      stop();
+      return;
+    }
+    if (!last) last = time;
+    elapsed += time - last;
+    last = time;
+    if (elapsed >= DURATION) {
+      elapsed = 0;
+      index = (index + 1) % MODES.length;
+      paint();
+    }
+    if (progress) progress.style.transform = `scaleX(${Math.min(1, elapsed / DURATION)})`;
+    raf = requestAnimationFrame(loop);
+  };
+
+  const sync = () => {
+    if (shouldRun()) {
+      if (!raf) {
+        last = 0;
+        raf = requestAnimationFrame(loop);
+      }
+    } else {
+      stop();
+    }
+  };
+
+  const go = (next: number) => {
+    index = (next + MODES.length) % MODES.length;
+    elapsed = 0;
+    if (progress) progress.style.transform = 'scaleX(0)';
+    paint();
+    sync();
+  };
+
+  if (root && tabs.length) {
+    paint();
+    paintPlay();
+
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => go(i));
+      tab.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+          e.preventDefault();
+          go(index + (e.key === 'ArrowRight' ? 1 : -1));
+          tabs[index]?.focus();
+        }
+        if (e.key === 'Home') {
+          e.preventDefault();
+          go(0);
+          tabs[0]?.focus();
+        }
+        if (e.key === 'End') {
+          e.preventDefault();
+          go(MODES.length - 1);
+          tabs[MODES.length - 1]?.focus();
+        }
+      });
+    });
+
+    dots.forEach((dot, i) => dot.addEventListener('click', () => go(i)));
+    document.getElementById('mode-prev')?.addEventListener('click', () => go(index - 1));
+    document.getElementById('mode-next')?.addEventListener('click', () => go(index + 1));
+
+    playBtn?.addEventListener('click', () => {
+      playing = !playing;
+      elapsed = 0;
+      if (progress) progress.style.transform = 'scaleX(0)';
+      paintPlay();
+      sync();
+    });
+
+    root.addEventListener('pointerenter', () => {
+      hovering = true;
+      sync();
+    });
+    root.addEventListener('pointerleave', () => {
+      hovering = false;
+      sync();
+    });
+    root.addEventListener('focusin', () => {
+      hovering = true;
+      sync();
+    });
+    root.addEventListener('focusout', () => {
+      hovering = false;
+      sync();
+    });
+
+    document.addEventListener('visibilitychange', sync);
+
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(
+        (entries) => {
+          visible = entries.some((entry) => entry.isIntersecting);
+          sync();
+        },
+        { threshold: 0.15 },
+      ).observe(root);
+    } else {
+      visible = true;
+      sync();
+    }
+
+    let downX = 0;
+    let downY = 0;
+    let tracking = false;
+    stage?.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse') return;
+      downX = e.clientX;
+      downY = e.clientY;
+      tracking = true;
+    });
+    stage?.addEventListener('pointerup', (e) => {
+      if (!tracking) return;
+      tracking = false;
+      const dx = e.clientX - downX;
+      const dy = e.clientY - downY;
+      if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.4) go(index + (dx < 0 ? 1 : -1));
+    });
+    stage?.addEventListener('pointercancel', () => (tracking = false));
+
+    window.addEventListener('fd:mode', (event) => {
+      const id = (event as CustomEvent<string>).detail;
+      const found = MODES.findIndex((m) => m.id === id);
+      if (found >= 0) go(found);
+    });
+
+    root.querySelectorAll<HTMLButtonElement>('[data-zoom-mode]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        window.dispatchEvent(
+          new CustomEvent('fd:zoom', {
+            detail: {
+              items: MODES.map((m) => ({ src: asset(m.file), caption: `${m.tab} — ${m.title}` })),
+              index: Number(btn.dataset.zoomMode ?? 0),
+            },
+          }),
+        );
+      });
+    });
+
+    window.addEventListener('pagehide', stop);
+
+    let resizeRaf = 0;
+    window.addEventListener(
+      'resize',
+      () => {
+        if (resizeRaf) cancelAnimationFrame(resizeRaf);
+        resizeRaf = requestAnimationFrame(() => {
+          resizeRaf = 0;
+          fitStage();
+        });
+      },
+      { passive: true },
+    );
+  }
+</script>
